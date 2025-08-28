@@ -1,0 +1,97 @@
+version: "2"
+
+run:
+  concurrency: 4
+  timeout: 10m
+
+linters:
+  default: all
+  disable:
+    - wsl
+    - depguard
+    - exhaustruct
+    - ginkgolinter
+    - gochecknoglobals
+    - gochecknoinits
+    - godot
+    - musttag
+    - nlreturn
+    - tagalign
+    - varnamelen
+    - wrapcheck
+    - ireturn
+    - iface
+    - err113
+    - errchkjson
+    - errorlint
+    - exhaustive
+    - funcorder
+    - gosec
+    - lll
+    - protogetter
+    - revive
+    - testifylint
+    - usetesting
+    - nilnil
+    - nilerr
+    - noinlineerr
+  settings:
+    paralleltest:
+      ignore-missing: true
+      ignore-missing-subtests: true
+    tagliatelle:
+      case:
+        rules:
+          json: camel
+        use-field-name: true
+    testifylint:
+      disable:
+        - require-error
+  exclusions:
+    generated: lax
+    presets:
+      - comments
+      - common-false-positives
+      - legacy
+      - std-error-handling
+    rules:
+      - linters:
+          - dupl
+          - funlen
+          - maintidx
+        source: ^func Test
+      - linters:
+          - dupl
+          - funlen
+          - gocognit
+          - goconst
+          - maintidx
+        path: (.+)_test\.go
+    paths:
+      - vendor
+      - third_party$
+      - builtin$
+      - examples$
+formatters:
+  enable:
+    - gci
+    - gofmt
+    - goimports
+  settings:
+    gci:
+      sections:
+        - standard
+        - default
+        - prefix(github.com/openkcm/keystore-plugins)
+        - blank
+        - dot
+        - alias
+        - localmodule
+  exclusions:
+    generated: lax
+    paths:
+      - vendor
+      - third_party$
+      - builtin$
+      - examples$
+      - pkg/proto

@@ -1,0 +1,14 @@
+# syntax=docker/dockerfile:1
+
+FROM golang:1.24-alpine AS builder
+
+WORKDIR /app
+
+COPY vendor/ ./
+COPY . .
+
+RUN CGO_ENABLED=0 GOOS=linux GOARCH=amd64 go build -mod=vendor -o /bin/keystore-op-aws ./cmd/keystoreop/aws
+
+FROM scratch AS runner
+
+COPY --from=builder /bin/keystore-op-aws /bin/keystore-op-aws
