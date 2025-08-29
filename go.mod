@@ -13,7 +13,7 @@ require (
 	github.com/magodo/slog2hclog v0.0.0-20240614031327-090ebd72a033
 	github.com/openkcm/plugin-sdk v0.5.0
 	github.com/stretchr/testify v1.11.1
-	google.golang.org/protobuf v1.36.7
+	google.golang.org/protobuf v1.36.8
 	gopkg.in/yaml.v3 v3.0.1
 )
 
