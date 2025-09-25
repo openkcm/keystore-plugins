@@ -1,7 +1,6 @@
 name: Release New Version
 
 on:
-  push:
   pull_request:
     types:
       - closed
