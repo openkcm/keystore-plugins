@@ -9,12 +9,6 @@ permissions:
 
 jobs:
   release:
-    if: |
-      github.event_name == 'pull_request' &&
-      github.event.pull_request.merged == true &&
-      contains(github.event.pull_request.title, 'chore(main)') &&
-      contains(github.event.pull_request.title, 'release') &&
-      contains(github.event.pull_request.labels.*.name, 'release')
     runs-on: ubuntu-24.04
     steps:
       - name: Generate token from GitHub App
