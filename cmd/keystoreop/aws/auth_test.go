@@ -170,6 +170,7 @@ func TestCertificateAuthMethod_GetCredentials(t *testing.T) {
 					"mock-secret-access-key",
 					"mock-session-token",
 				)
+
 				return &provider, nil
 			},
 			wantErr: false,

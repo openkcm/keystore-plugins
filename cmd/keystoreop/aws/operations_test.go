@@ -532,6 +532,7 @@ func TestTransformCryptoAccessData(t *testing.T) {
 					},
 				}
 				bytes, _ := json.Marshal(data)
+
 				return bytes
 			}(),
 			keyID:   "arn:aws:kms:us-west-2:123456789012:key/12345678-90ab-cdef-1234-567890abcdef",
@@ -566,6 +567,7 @@ func TestTransformCryptoAccessData(t *testing.T) {
 					},
 				}
 				bytes, _ := json.Marshal(data)
+
 				return bytes
 			}(),
 			keyID:      "arn:aws:kms:us-west-2:123456789012:key/12345678-90ab-cdef-1234-567890abcdef",
@@ -583,6 +585,7 @@ func TestTransformCryptoAccessData(t *testing.T) {
 					},
 				}
 				bytes, _ := json.Marshal(data)
+
 				return bytes
 			}(),
 			keyID:      "arn:aws:kms:us-west-2:123456789012:key/12345678-90ab-cdef-1234-567890abcdef",
@@ -600,6 +603,7 @@ func TestTransformCryptoAccessData(t *testing.T) {
 					},
 				}
 				bytes, _ := json.Marshal(data)
+
 				return bytes
 			}(),
 			keyID:      "",
