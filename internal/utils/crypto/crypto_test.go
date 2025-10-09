@@ -107,6 +107,7 @@ func TestSignWithRSAPrivateKey(t *testing.T) {
 	hasher.Write(content)
 
 	err = rsa.VerifyPKCS1v15(&privateKey.PublicKey, crypto.SHA256, hasher.Sum(nil), signatureBytes)
+	//nolint:gocritic
 	//err = rsa.VerifyPSS(&privateKey.PublicKey, crypto.SHA256, hasher.Sum(nil), signatureBytes, &rsa.PSSOptions{
 	//	SaltLength: rsa.PSSSaltLengthAuto,
 	//})
