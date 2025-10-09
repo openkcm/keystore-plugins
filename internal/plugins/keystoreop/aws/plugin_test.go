@@ -2,7 +2,6 @@ package aws_test
 
 import (
 	"context"
-	"errors"
 	"log/slog"
 	"testing"
 	"time"
@@ -19,12 +18,10 @@ import (
 )
 
 var (
-	errForced      = errors.New("forced error")
 	expectedKeyID  = uuid.New().String()
 	now            = time.Now().UTC()
 	expectedKeyArn = "arn:aws:kms:us-west-2:123456789012:key/" + expectedKeyID
 	happyPathMock  = mock.HappyPathMock(expectedKeyID, expectedKeyArn, now)
-	errorMock      = mock.ErrorMock(errForced)
 )
 
 func setupTest() *aws_keystore.AWSPlugin {

@@ -23,14 +23,14 @@ import (
 	"github.com/openkcm/keystore-plugins/internal/utils/ptr"
 )
 
+// Helpers
+
 func generateTestCertificate(t *testing.T) (string, string) {
 	t.Helper()
 
-	// Generate a new RSA private key
 	priv, err := rsa.GenerateKey(rand.Reader, 2048)
 	assert.NoError(t, err)
 
-	// Create a template for the certificate
 	template := x509.Certificate{
 		SerialNumber: big.NewInt(1),
 		Subject: pkix.Name{
@@ -43,24 +43,49 @@ func generateTestCertificate(t *testing.T) (string, string) {
 		BasicConstraintsValid: true,
 	}
 
-	// Create a self-signed certificate
 	certDER, err := x509.CreateCertificate(rand.Reader, &template, &template, &priv.PublicKey, priv)
 	assert.NoError(t, err)
 
-	// Encode the certificate to PEM format
-	certPEM := pem.EncodeToMemory(&pem.Block{
-		Type:  "CERTIFICATE",
-		Bytes: certDER,
-	})
-
-	// Encode the private key to PEM format using PKCS1
-	privPEM := pem.EncodeToMemory(&pem.Block{
-		Type:  "RSA PRIVATE KEY",
-		Bytes: x509.MarshalPKCS1PrivateKey(priv),
-	})
+	certPEM := pem.EncodeToMemory(&pem.Block{Type: "CERTIFICATE", Bytes: certDER})
+	privPEM := pem.EncodeToMemory(&pem.Block{Type: "RSA PRIVATE KEY", Bytes: x509.MarshalPKCS1PrivateKey(priv)})
 
 	return string(certPEM), string(privPEM)
 }
+
+func newStructReader(t *testing.T, cfg map[string]interface{}) *common.StructReader {
+	t.Helper()
+
+	s, err := structpb.NewStruct(cfg)
+	assert.NoError(t, err)
+	r, err := common.NewStructReader(s)
+	assert.NoError(t, err)
+
+	return r
+}
+
+func assertAWSCredentials(t *testing.T, got, want *common.AWSConfig) {
+	t.Helper()
+	assert.Equal(t, want.AccessKeyID, got.AccessKeyID)
+	assert.Equal(t, want.SecretAccessKey, got.SecretAccessKey)
+
+	if want.SessionToken != nil {
+		assert.Equal(t, *want.SessionToken, *got.SessionToken)
+	} else {
+		assert.Nil(t, got.SessionToken)
+	}
+}
+
+func defaultMockRolesAnywhereSession(_ context.Context, _ awsclient.RolesAnywhereParams) (*credentials.StaticCredentialsProvider, error) {
+	provider := credentials.NewStaticCredentialsProvider(
+		"mock-access-key-id",
+		"mock-secret-access-key",
+		"mock-session-token",
+	)
+
+	return &provider, nil
+}
+
+// Tests
 
 func TestSecretAuthMethod_GetCredentials(t *testing.T) {
 	tests := []struct {
@@ -114,32 +139,17 @@ func TestSecretAuthMethod_GetCredentials(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			// Arrange
-			config, err := structpb.NewStruct(tt.config)
-			assert.NoError(t, err)
-
-			reader, err := common.NewStructReader(config)
-			assert.NoError(t, err)
-
+			reader := newStructReader(t, tt.config)
 			authMethod := &aws_keystore.SecretAuthMethod{}
 
-			// Act
 			awsConfig, err := authMethod.GetCredentials(context.Background(), reader)
 
-			// Assert
 			if (err != nil) != tt.wantErr {
 				t.Errorf("GetCredentials() error = %v, wantErr %v", err, tt.wantErr)
 			}
 
 			if !tt.wantErr && awsConfig != nil {
-				assert.Equal(t, tt.wantConfig.AccessKeyID, awsConfig.AccessKeyID)
-				assert.Equal(t, tt.wantConfig.SecretAccessKey, awsConfig.SecretAccessKey)
-
-				if tt.wantConfig.SessionToken != nil {
-					assert.Equal(t, *tt.wantConfig.SessionToken, *awsConfig.SessionToken)
-				} else {
-					assert.Nil(t, awsConfig.SessionToken)
-				}
+				assertAWSCredentials(t, awsConfig, tt.wantConfig)
 			}
 		})
 	}
@@ -164,16 +174,8 @@ func TestCertificateAuthMethod_GetCredentials(t *testing.T) {
 				"clientCert":     clientCert,
 				"privateKey":     privateKey,
 			},
-			mockCreateRolesAnywhereSession: func(ctx context.Context, params awsclient.RolesAnywhereParams) (*credentials.StaticCredentialsProvider, error) {
-				provider := credentials.NewStaticCredentialsProvider(
-					"mock-access-key-id",
-					"mock-secret-access-key",
-					"mock-session-token",
-				)
-
-				return &provider, nil
-			},
-			wantErr: false,
+			mockCreateRolesAnywhereSession: defaultMockRolesAnywhereSession,
+			wantErr:                        false,
 		},
 		{
 			name: "Missing roleArn",
@@ -268,11 +270,7 @@ func TestCertificateAuthMethod_GetCredentials(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			config, err := structpb.NewStruct(tt.config)
-			assert.NoError(t, err)
-
-			reader, err := common.NewStructReader(config)
-			assert.NoError(t, err)
+			reader := newStructReader(t, tt.config)
 
 			authMethod := &aws_keystore.CertificateAuthMethod{
 				CreateRolesAnywhereSessionFunc: tt.mockCreateRolesAnywhereSession,

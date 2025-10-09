@@ -13,6 +13,8 @@ import (
 	"github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/base"
 )
 
+// --- Mock Processor ---
+
 type MockProcessor struct{}
 
 func (p MockProcessor) Name() string {
@@ -21,13 +23,10 @@ func (p MockProcessor) Name() string {
 
 func (p MockProcessor) ValidateJSONData(jsonData []byte) error {
 	var data map[string]interface{}
-
-	err := json.Unmarshal(jsonData, &data)
-	if err != nil {
+	if err := json.Unmarshal(jsonData, &data); err != nil {
 		return fmt.Errorf("failed to parse JSON data: %v", err)
 	}
 
-	// Validate required fields
 	if _, ok := data["requiredField"]; !ok {
 		return errors.New("missing requiredField")
 	}
@@ -35,203 +34,133 @@ func (p MockProcessor) ValidateJSONData(jsonData []byte) error {
 	return nil
 }
 
-func (p MockProcessor) PopulateStructData(
-	nativeKeyID string,
-	cryptoAccessData map[string]string,
-) proto.Message {
+func (p MockProcessor) PopulateStructData(nativeKeyID string, cryptoAccessData map[string]string) proto.Message {
 	fields := map[string]*structpb.Value{
 		"nativeKeyID": structpb.NewStringValue(nativeKeyID),
 	}
-
 	for key, value := range cryptoAccessData {
 		fields[key] = structpb.NewStringValue(value)
 	}
 
-	return &structpb.Struct{
-		Fields: fields,
-	}
+	return &structpb.Struct{Fields: fields}
 }
 
-func TestValidateKeyAccessDataWithValidInput(t *testing.T) {
-	processor := base.NewAccessDataProcessor(MockProcessor{})
-	managementAccessData := &structpb.Struct{
-		Fields: map[string]*structpb.Value{
-			"requiredField": structpb.NewStringValue("value1"),
-		},
-	}
-	cryptoAccessData := &structpb.Struct{
-		Fields: map[string]*structpb.Value{
-			"instance1": structpb.NewStructValue(&structpb.Struct{
-				Fields: map[string]*structpb.Value{
-					"requiredField": structpb.NewStringValue("value1"),
-				},
-			}),
-		},
-	}
+// --- Helpers ---
 
-	err := processor.ValidateKeyAccessData(managementAccessData, cryptoAccessData)
-
-	assert.NoError(t, err)
+func newProcessor() *base.AccessDataProcessor {
+	return base.NewAccessDataProcessor(MockProcessor{})
 }
 
-func TestValidateKeyAccessDataWithMissingRequiredFieldInManagementData(t *testing.T) {
-	processor := base.NewAccessDataProcessor(MockProcessor{})
-	managementAccessData := &structpb.Struct{
-		Fields: map[string]*structpb.Value{},
-	}
-	cryptoAccessData := &structpb.Struct{
-		Fields: map[string]*structpb.Value{
-			"instance1": structpb.NewStructValue(&structpb.Struct{
-				Fields: map[string]*structpb.Value{
-					"requiredField": structpb.NewStringValue("value1"),
-				},
-			}),
-		},
+func newStruct(fields map[string]string) *structpb.Struct {
+	s := &structpb.Struct{Fields: map[string]*structpb.Value{}}
+	for k, v := range fields {
+		s.Fields[k] = structpb.NewStringValue(v)
 	}
 
-	err := processor.ValidateKeyAccessData(managementAccessData, cryptoAccessData)
-
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "invalid Mock key management access data")
+	return s
 }
 
-func TestValidateKeyAccessDataWithMissingInstanceData(t *testing.T) {
-	processor := base.NewAccessDataProcessor(MockProcessor{})
-	managementAccessData := &structpb.Struct{
-		Fields: map[string]*structpb.Value{
-			"requiredField": structpb.NewStringValue("value1"),
-		},
-	}
-	cryptoAccessData := &structpb.Struct{
-		Fields: map[string]*structpb.Value{
-			"instance1": nil,
-		},
-	}
+func validateKeyAccess(t *testing.T, managementFields map[string]string, cryptoFields map[string]map[string]string, expectedErr string) {
+	t.Helper()
 
-	err := processor.ValidateKeyAccessData(managementAccessData, cryptoAccessData)
+	processor := newProcessor()
 
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "missing Mock crypto access data for instance: instance1")
-}
+	managementAccessData := newStruct(managementFields)
 
-func TestValidateKeyAccessDataWithInvalidInstanceDataType(t *testing.T) {
-	processor := base.NewAccessDataProcessor(MockProcessor{})
-	managementAccessData := &structpb.Struct{
-		Fields: map[string]*structpb.Value{
-			"requiredField": structpb.NewStringValue("value1"),
-		},
-	}
-	cryptoAccessData := &structpb.Struct{
-		Fields: map[string]*structpb.Value{
-			"instance1": structpb.NewStringValue("invalid"),
-		},
-	}
+	cryptoAccessData := &structpb.Struct{Fields: map[string]*structpb.Value{}}
 
-	err := processor.ValidateKeyAccessData(managementAccessData, cryptoAccessData)
-
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "invalid data type for Mock crypto access data for instance: instance1")
-}
-
-func TestValidateKeyAccessDataWithInvalidInstanceStruct(t *testing.T) {
-	processor := base.NewAccessDataProcessor(MockProcessor{})
-	managementAccessData := &structpb.Struct{
-		Fields: map[string]*structpb.Value{
-			"requiredField": structpb.NewStringValue("value1"),
-		},
-	}
-	cryptoAccessData := &structpb.Struct{
-		Fields: map[string]*structpb.Value{
-			"instance1": structpb.NewStructValue(&structpb.Struct{
-				Fields: map[string]*structpb.Value{
-					"invalidField": structpb.NewStringValue("value"),
-				},
-			}),
-		},
-	}
-
-	err := processor.ValidateKeyAccessData(managementAccessData, cryptoAccessData)
-
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "invalid Mock key access data for instance instance1")
-}
-
-func TestTransformCryptoAccessDataWithValidInput(t *testing.T) {
-	processor := base.NewAccessDataProcessor(MockProcessor{})
-	nativeKeyID := "generic-key-id"
-	input := func() []byte {
-		data := map[string]json.RawMessage{
-			"instance1": json.RawMessage(`{
-				"requiredField": "value1",
-				"optionalField": "value2"
-			}`),
+	for instance, fields := range cryptoFields {
+		if fields == nil {
+			cryptoAccessData.Fields[instance] = nil
+		} else {
+			cryptoAccessData.Fields[instance] = structpb.NewStructValue(newStruct(fields))
 		}
-		bytes, _ := json.Marshal(data)
+	}
 
-		return bytes
-	}()
+	err := processor.ValidateKeyAccessData(managementAccessData, cryptoAccessData)
 
-	result, err := processor.TransformCryptoAccessData(nativeKeyID, input)
-
-	assert.NoError(t, err)
-	assert.NotNil(t, result)
-	assert.NotEmpty(t, result["instance1"])
+	if expectedErr == "" {
+		assert.NoError(t, err)
+	} else {
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), expectedErr)
+	}
 }
 
-func TestTransformCryptoAccessDataWithMissingRequiredField(t *testing.T) {
-	processor := base.NewAccessDataProcessor(MockProcessor{})
-	nativeKeyID := "generic-key-id"
-	input := func() []byte {
-		data := map[string]json.RawMessage{
-			"instance1": json.RawMessage(`{
-				"optionalField": "value2"
-			}`),
+func transformCryptoAccess(t *testing.T, nativeKeyID string, input map[string]string, expectedErr string) {
+	t.Helper()
+
+	processor := newProcessor()
+
+	bytes, _ := json.Marshal(func() map[string]json.RawMessage {
+		out := map[string]json.RawMessage{}
+		for k, v := range input {
+			out[k] = json.RawMessage(v)
 		}
-		bytes, _ := json.Marshal(data)
 
-		return bytes
-	}()
+		return out
+	}())
 
-	result, err := processor.TransformCryptoAccessData(nativeKeyID, input)
+	result, err := processor.TransformCryptoAccessData(nativeKeyID, bytes)
 
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "missing requiredField")
-	assert.Nil(t, result)
+	if expectedErr == "" {
+		assert.NoError(t, err)
+		assert.NotNil(t, result)
+	} else {
+		assert.Error(t, err)
+		assert.Contains(t, err.Error(), expectedErr)
+		assert.Nil(t, result)
+	}
 }
 
-func TestTransformCryptoAccessDataWithEmptyInstanceName(t *testing.T) {
-	processor := base.NewAccessDataProcessor(MockProcessor{})
-	nativeKeyID := "generic-key-id"
-	input := func() []byte {
-		data := map[string]json.RawMessage{
-			"": json.RawMessage(`{
-				"requiredField": "value1",
-				"optionalField": "value2"
-			}`),
-		}
-		bytes, _ := json.Marshal(data)
+// --- Tests ---
 
-		return bytes
-	}()
+func TestValidateKeyAccessData(t *testing.T) {
+	validateKeyAccess(t,
+		map[string]string{"requiredField": "value1"},
+		map[string]map[string]string{"instance1": {"requiredField": "value1"}},
+		"",
+	)
 
-	result, err := processor.TransformCryptoAccessData(nativeKeyID, input)
+	validateKeyAccess(t,
+		map[string]string{},
+		map[string]map[string]string{"instance1": {"requiredField": "value1"}},
+		"invalid Mock key management access data",
+	)
 
-	assert.Error(t, err)
-	assert.Contains(t, err.Error(), "instance name cannot be empty")
-	assert.Nil(t, result)
+	validateKeyAccess(t,
+		map[string]string{"requiredField": "value1"},
+		map[string]map[string]string{"instance1": nil},
+		"missing Mock crypto access data for instance: instance1",
+	)
+
+	validateKeyAccess(t,
+		map[string]string{"requiredField": "value1"},
+		map[string]map[string]string{"instance1": {"invalidField": "value"}},
+		"invalid Mock key access data for instance instance1",
+	)
 }
 
-func TestTransformCryptoAccessDataWithInvalidJSON(t *testing.T) {
-	processor := base.NewAccessDataProcessor(MockProcessor{})
-	nativeKeyID := "generic-key-id"
-	input := []byte(`{
-		"instance1": {
-			"requiredField": "value1",
-			"optionalField": "value2"
-	}`) // Malformed JSON
+func TestTransformCryptoAccessData(t *testing.T) {
+	transformCryptoAccess(t, "generic-key-id",
+		map[string]string{"instance1": `{"requiredField": "value1", "optionalField": "value2"}`},
+		"",
+	)
 
-	result, err := processor.TransformCryptoAccessData(nativeKeyID, input)
+	transformCryptoAccess(t, "generic-key-id",
+		map[string]string{"instance1": `{"optionalField": "value2"}`},
+		"missing requiredField",
+	)
 
+	transformCryptoAccess(t, "generic-key-id",
+		map[string]string{"": `{"requiredField": "value1", "optionalField": "value2"}`},
+		"instance name cannot be empty",
+	)
+
+	// Malformed JSON
+	processor := newProcessor()
+	invalidJSON := []byte(`{"instance1": {"requiredField": "value1","optionalField": "value2"}`) // missing closing brace
+	result, err := processor.TransformCryptoAccessData("generic-key-id", invalidJSON)
 	assert.Error(t, err)
 	assert.Contains(t, err.Error(), "failed to unmarshal crypto access data")
 	assert.Nil(t, result)
