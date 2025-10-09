@@ -5,7 +5,7 @@ includes:
     taskfile: hack/common/Taskfile_plugin.yaml
     flatten: true
     vars:
-      CODE_DIRS: '{{.ROOT_DIR}}/pkg/common/... {{.ROOT_DIR}}/pkg/keystoreop/... {{.ROOT_DIR}}/cmd/...'
+      CODE_DIRS: '{{.ROOT_DIR}}/cmd/... {{.ROOT_DIR}}/internal/...'
       COMPONENTS: 'keystoreop/aws'
       GENERATE_DOCS_INDEX: "false"
       REPO_URL: 'https://github.com/openkcm/keystore-plugins'
