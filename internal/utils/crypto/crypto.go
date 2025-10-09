@@ -49,7 +49,7 @@ func SignWithRSAPrivateKey(privateKey *rsa.PrivateKey, content []byte) (string, 
 	hashedContent := calculateSHA256(content)
 
 	signature, err := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, hashedContent)
-	//nolint:gocritic
+	//nolint:gocritic,godox
 	//TODO: investigate using PSS instead of PKCS1v15
 	// Note: PSS produces different signatures for the same content each time due to random salt.
 	// This may or may not be desirable depending on the use case.
