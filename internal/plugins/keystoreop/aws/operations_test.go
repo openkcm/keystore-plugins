@@ -41,7 +41,7 @@ func setupConfig(t *testing.T) *kscommonv1.KeystoreInstanceConfig {
 	}
 }
 
-func TestAWS_GetKey(t *testing.T) {
+func TestAWSGetKey(t *testing.T) {
 	tests := []struct {
 		name    string
 		client  *mock.Mock
@@ -123,7 +123,7 @@ func TestExtractRegionFromARN(t *testing.T) {
 	}{
 		{
 			name:    "Valid ARN",
-			arn:     "arn:aws:kms:us-west-2:123456789012:key/12345678-90ab-cdef-1234-567890abcdef",
+			arn:     keyId,
 			want:    "us-west-2",
 			wantErr: false,
 		},
@@ -535,13 +535,13 @@ func TestTransformCryptoAccessData(t *testing.T) {
 
 				return bytes
 			}(),
-			keyID:   "arn:aws:kms:us-west-2:123456789012:key/12345678-90ab-cdef-1234-567890abcdef",
+			keyID:   keyId,
 			wantErr: false,
 		},
 		{
 			name:       "Empty access data",
 			inputJSON:  []byte(""),
-			keyID:      "arn:aws:kms:us-west-2:123456789012:key/12345678-90ab-cdef-1234-567890abcdef",
+			keyID:      keyId,
 			wantErr:    true,
 			errMessage: "failed to unmarshal crypto access data",
 		},
@@ -553,7 +553,7 @@ func TestTransformCryptoAccessData(t *testing.T) {
 					"profileArn": "arn:aws:iam::123456789012:role/Profile",
 					"roleArn": "arn:aws:iam::123456789012:role/Role",
 			}`), // Missing closing brace
-			keyID:      "arn:aws:kms:us-west-2:123456789012:key/12345678-90ab-cdef-1234-567890abcdef",
+			keyID:      keyId,
 			wantErr:    true,
 			errMessage: "failed to unmarshal crypto access data",
 		},
@@ -570,7 +570,7 @@ func TestTransformCryptoAccessData(t *testing.T) {
 
 				return bytes
 			}(),
-			keyID:      "arn:aws:kms:us-west-2:123456789012:key/12345678-90ab-cdef-1234-567890abcdef",
+			keyID:      keyId,
 			wantErr:    true,
 			errMessage: "missing trustAnchorArn",
 		},
@@ -588,7 +588,7 @@ func TestTransformCryptoAccessData(t *testing.T) {
 
 				return bytes
 			}(),
-			keyID:      "arn:aws:kms:us-west-2:123456789012:key/12345678-90ab-cdef-1234-567890abcdef",
+			keyID:      keyId,
 			wantErr:    true,
 			errMessage: "instance name cannot be empty",
 		},
