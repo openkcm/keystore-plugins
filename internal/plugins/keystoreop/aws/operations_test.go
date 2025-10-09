@@ -14,7 +14,7 @@ import (
 	operationsv1 "github.com/openkcm/plugin-sdk/proto/plugin/keystore/operations/v1"
 
 	aws_keystore "github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/aws"
-	aws_client "github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/aws/client"
+	aws "github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/aws/client"
 	"github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/aws/client/mock"
 	"github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/base"
 	protoDef "github.com/openkcm/keystore-plugins/pkg/proto"
@@ -25,8 +25,8 @@ const keyId = "arn:aws:kms:us-west-2:123456789012:key/12345678-90ab-cdef-1234-56
 // --- Helpers ---
 
 func newPlugin(client *mock.Mock) *aws_keystore.AWSPlugin {
-	return aws_keystore.NewAWSPlugin(func(ctx context.Context, cfg *kscommonv1.KeystoreInstanceConfig, region string) (*aws_client.Client, error) {
-		return aws_client.NewClientForTests(client), nil
+	return aws_keystore.NewAWSPlugin(func(ctx context.Context, cfg *kscommonv1.KeystoreInstanceConfig, region string) (*aws.Client, error) {
+		return aws.NewClientForTests(client), nil
 	})
 }
 

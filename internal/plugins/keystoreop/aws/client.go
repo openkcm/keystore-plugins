@@ -8,7 +8,7 @@ import (
 	kscommonv1 "github.com/openkcm/plugin-sdk/proto/plugin/keystore/common/v1"
 
 	"github.com/openkcm/keystore-plugins/internal/common"
-	aws_client "github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/aws/client"
+	aws "github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/aws/client"
 )
 
 // GetAWSConfig validates the provided configuration and returns an AWSConfig
@@ -39,7 +39,7 @@ func NewAWSClient(
 	ctx context.Context,
 	config *kscommonv1.KeystoreInstanceConfig,
 	region string,
-) (*aws_client.Client, error) {
+) (*aws.Client, error) {
 	if config == nil || config.Values == nil {
 		return nil, common.ErrNilConfig
 	}
@@ -57,7 +57,7 @@ func NewAWSClient(
 	}
 
 	// Create new AWS client with validated configuration
-	client := aws_client.NewClient(
+	client := aws.NewClient(
 		ctx,
 		region,
 		awsConfig.AccessKeyID,

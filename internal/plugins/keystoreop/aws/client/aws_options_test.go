@@ -7,7 +7,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/kms"
 	"github.com/stretchr/testify/assert"
 
-	aws_client "github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/aws/client"
+	aws "github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/aws/client"
 	"github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/aws/client/mock"
 )
 
@@ -21,7 +21,7 @@ func TestOptions(t *testing.T) {
 			name: "SetHTTPClient",
 			optFunc: func(opts *kms.Options) {
 				mockClient := &http.Client{}
-				aws_client.SetHTTPClient(mockClient)(opts)
+				aws.SetHTTPClient(mockClient)(opts)
 			},
 			expected: func(opts *kms.Options) bool {
 				return opts.HTTPClient != nil
@@ -31,7 +31,7 @@ func TestOptions(t *testing.T) {
 			name: "BaseEndpoint",
 			optFunc: func(opts *kms.Options) {
 				endpoint := "https://example.com"
-				aws_client.BaseEndpoint(endpoint)(opts)
+				aws.BaseEndpoint(endpoint)(opts)
 			},
 			expected: func(opts *kms.Options) bool {
 				return opts.BaseEndpoint != nil && *opts.BaseEndpoint == "https://example.com"
@@ -41,7 +41,7 @@ func TestOptions(t *testing.T) {
 			name: "SetEndpointResolver",
 			optFunc: func(opts *kms.Options) {
 				mockResolver := mock.EndpointResolver{}
-				aws_client.SetEndpointResolver(mockResolver)(opts)
+				aws.SetEndpointResolver(mockResolver)(opts)
 			},
 			expected: func(opts *kms.Options) bool {
 				return opts.EndpointResolverV2 != nil

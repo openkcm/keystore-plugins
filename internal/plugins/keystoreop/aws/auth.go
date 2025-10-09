@@ -9,7 +9,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/credentials"
 
 	"github.com/openkcm/keystore-plugins/internal/common"
-	aws_client "github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/aws/client"
+	aws "github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/aws/client"
 	"github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/base"
 	"github.com/openkcm/keystore-plugins/internal/utils/crypto"
 )
@@ -64,7 +64,7 @@ func (m *SecretAuthMethod) GetCredentials(
 
 // CertificateAuthMethod implements authentication using certificate-based auth
 type CertificateAuthMethod struct {
-	CreateRolesAnywhereSessionFunc func(ctx context.Context, params aws_client.RolesAnywhereParams) (
+	CreateRolesAnywhereSessionFunc func(ctx context.Context, params aws.RolesAnywhereParams) (
 		*credentials.StaticCredentialsProvider, error)
 }
 
@@ -111,7 +111,7 @@ func (m *CertificateAuthMethod) GetCredentials(
 	}
 
 	// Create roles anywhere params
-	params := aws_client.RolesAnywhereParams{
+	params := aws.RolesAnywhereParams{
 		ProfileArn:      profileArn,
 		RoleArn:         roleArn,
 		TrustAnchorArn:  trustAnchorArn,
@@ -142,7 +142,7 @@ func AWSAuthFactory(authType string) (AWSAuthMethod, error) {
 		return &SecretAuthMethod{}, nil
 	case base.AuthTypeCertificate:
 		return &CertificateAuthMethod{
-			aws_client.CreateRolesAnywhereSession,
+			aws.CreateRolesAnywhereSession,
 		}, nil
 	default:
 		return nil, fmt.Errorf("%w: %s", ErrInvalidAuth, authType)

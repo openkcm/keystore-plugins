@@ -10,7 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/kms"
 	"gopkg.in/yaml.v3"
 
-	aws_client "github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/aws/client"
+	aws "github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/aws/client"
 	cryptoUtils "github.com/openkcm/keystore-plugins/internal/utils/crypto"
 )
 
@@ -74,7 +74,7 @@ func main() {
 	ctx := context.Background()
 
 	// Declare the parameters
-	params := aws_client.RolesAnywhereParams{
+	params := aws.RolesAnywhereParams{
 		ProfileArn:      arns.ProfileArn,
 		RoleArn:         arns.RoleArn,
 		TrustAnchorArn:  arns.TrustAnchorArn,
@@ -86,12 +86,12 @@ func main() {
 	}
 
 	// Get the credentials
-	credentials, err := aws_client.CreateRolesAnywhereSession(ctx, params)
+	credentials, err := aws.CreateRolesAnywhereSession(ctx, params)
 	errCheck(err)
 	fmt.Println("\nSuccessfully created operations client") //nolint:forbidigo
 
 	// Create a client with the credentials
-	client := aws_client.NewClientWithOptions(ctx, "us-east-1", credentials)
+	client := aws.NewClientWithOptions(ctx, "us-east-1", credentials)
 	exportedClient := client.ExportInternalClient()
 
 	// List the keys

@@ -10,7 +10,7 @@ import (
 	operationsv1 "github.com/openkcm/plugin-sdk/proto/plugin/keystore/operations/v1"
 
 	"github.com/openkcm/keystore-plugins/internal/common"
-	aws_client "github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/aws/client"
+	aws "github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/aws/client"
 	"github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/base"
 	"github.com/openkcm/keystore-plugins/internal/utils/ptr"
 )
@@ -51,7 +51,7 @@ func extractRegionFromARN(arn string) (string, error) {
 func (ap *AWSPlugin) getClientFromRequestParams(
 	ctx context.Context,
 	params *operationsv1.RequestParameters,
-) (*aws_client.Client, error) {
+) (*aws.Client, error) {
 	region, err := extractRegionFromARN(params.KeyId)
 	if err != nil {
 		return nil, err

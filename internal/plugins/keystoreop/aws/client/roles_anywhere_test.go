@@ -15,12 +15,12 @@ import (
 
 	"github.com/stretchr/testify/assert"
 
-	aws_client "github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/aws/client"
+	aws "github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/aws/client"
 	"github.com/openkcm/keystore-plugins/internal/utils/mutator"
 )
 
 func TestAddRequestHeaders_SetsAllHeaders(t *testing.T) {
-	params := aws_client.RolesAnywhereParams{
+	params := aws.RolesAnywhereParams{
 		RequestTime: time.Now().UTC(),
 		ClientCert:  &x509.Certificate{Raw: []byte("client-cert")},
 		ProfileArn:  "arn:aws:rolesanywhere:eu-west-2:123456789012:profile/test",
@@ -35,7 +35,7 @@ func TestAddRequestHeaders_SetsAllHeaders(t *testing.T) {
 		"https://example.com",
 		nil,
 	)
-	err := aws_client.AddRequestHeaders(req, params)
+	err := aws.AddRequestHeaders(req, params)
 	assert.NoError(t, err)
 
 	assert.Equal(t, "rolesanywhere.eu-west-2.amazonaws.com", req.Header.Get("Host"))
@@ -45,7 +45,7 @@ func TestAddRequestHeaders_SetsAllHeaders(t *testing.T) {
 		base64.StdEncoding.EncodeToString(params.ClientCert.Raw),
 		req.Header.Get("X-Amz-X509"),
 	)
-	assert.Equal(t, params.RequestTime.Format(aws_client.TimeFormat), req.Header.Get("X-Amz-Date"))
+	assert.Equal(t, params.RequestTime.Format(aws.TimeFormat), req.Header.Get("X-Amz-Date"))
 
 	expectedChain := strings.Join([]string{
 		base64.StdEncoding.EncodeToString(params.IntermediateCAs[0].Raw),
@@ -61,13 +61,13 @@ func TestAddRequestHeaders_NoIntermediateCAs(t *testing.T) {
 		"https://example.com",
 		nil,
 	)
-	params := aws_client.RolesAnywhereParams{
+	params := aws.RolesAnywhereParams{
 		RequestTime: time.Now().UTC(),
 		ProfileArn:  "arn:aws:rolesanywhere:eu-west-2:123456789012:profile/test",
 		ClientCert:  &x509.Certificate{Raw: []byte("client-cert")},
 	}
 
-	err := aws_client.AddRequestHeaders(req, params)
+	err := aws.AddRequestHeaders(req, params)
 	assert.NoError(t, err)
 
 	_, ok := req.Header["X-Amz-X509-Chain"]
@@ -131,7 +131,7 @@ func TestCreateCanonicalAndSignedHeaders(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			canonicalHeaders, signedHeaders := aws_client.CreateCanonicalAndSignedHeaders(tt.request)
+			canonicalHeaders, signedHeaders := aws.CreateCanonicalAndSignedHeaders(tt.request)
 			assert.Equal(t, tt.expectedCanonicalHeaders, canonicalHeaders)
 			assert.Equal(t, tt.expectedSignedHeaders, signedHeaders)
 		})
@@ -146,7 +146,7 @@ func TestCreateCanonicalQueryString(t *testing.T) {
 	expectedQueryString := "profileArn=arn%3Aaws%3Arolesanywhere%3Aeu-west-2%3A123456789012%3Aprofile%2Ftest" +
 		"&roleArn=arn%3Aaws%3Aiam%3A%3A123456789012%3Arole%2Ftest" +
 		"&trustAnchorArn=arn%3Aaws%3Arolesanywhere%3Aeu-west-2%3A123456789012%3Atrust-anchor%2Ftest"
-	queryString := aws_client.CreateCanonicalQueryString(profileArn, roleArn, trustAnchorArn)
+	queryString := aws.CreateCanonicalQueryString(profileArn, roleArn, trustAnchorArn)
 
 	assert.Equal(t, expectedQueryString, queryString)
 }
@@ -154,7 +154,7 @@ func TestCreateCanonicalQueryString(t *testing.T) {
 func TestPrepareRequest(t *testing.T) {
 	expectedRequest := `{"durationSeconds":3600}`
 
-	requestBytes, err := aws_client.PrepareRequest(aws_client.RolesAnywhereParams{
+	requestBytes, err := aws.PrepareRequest(aws.RolesAnywhereParams{
 		SessionDuration: 3600,
 	})
 	assert.NoError(t, err)
@@ -162,38 +162,38 @@ func TestPrepareRequest(t *testing.T) {
 }
 
 func TestGetScope_Valid(t *testing.T) {
-	params := aws_client.RolesAnywhereParams{
+	params := aws.RolesAnywhereParams{
 		RequestTime: time.Date(2023, 10, 1, 12, 0, 0, 0, time.UTC),
 		ProfileArn:  "arn:aws:rolesanywhere:eu-west-2:123456789012:profile/test",
 	}
 
-	scope, err := aws_client.GetScope(params)
+	scope, err := aws.GetScope(params)
 
 	assert.NoError(t, err)
 	assert.Equal(t, "20231001/eu-west-2/rolesanywhere/aws4_request", scope)
 }
 
 func TestGetScope_InvalidArn(t *testing.T) {
-	params := aws_client.RolesAnywhereParams{
+	params := aws.RolesAnywhereParams{
 		RequestTime: time.Date(2023, 10, 1, 12, 0, 0, 0, time.UTC),
 		ProfileArn:  "not-an-arn:eu-west-2:123456789012:profile/test",
 	}
 
-	_, err := aws_client.GetScope(params)
+	_, err := aws.GetScope(params)
 	assert.Error(t, err)
 }
 
 func TestCreateStringToSign(t *testing.T) {
 	tests := []struct {
 		name                 string
-		params               aws_client.RolesAnywhereParams
+		params               aws.RolesAnywhereParams
 		request              *http.Request
 		hashedRequestPayload string
 		expectedStringToSign string
 	}{
 		{
 			name: "TestCreateStringToSign_Valid",
-			params: aws_client.RolesAnywhereParams{
+			params: aws.RolesAnywhereParams{
 				ProfileArn:     "arn:aws:rolesanywhere:eu-west-2:123456789012:profile/test",
 				RoleArn:        "arn:aws:iam::123456789012:role/test",
 				TrustAnchorArn: "arn:aws:rolesanywhere:eu-west-2:123456789012:trust-anchor/test",
@@ -217,10 +217,10 @@ func TestCreateStringToSign(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			canonicalQuery := aws_client.CreateCanonicalQueryString(tt.params.ProfileArn,
+			canonicalQuery := aws.CreateCanonicalQueryString(tt.params.ProfileArn,
 				tt.params.RoleArn, tt.params.TrustAnchorArn)
-			canonicalHeaders, signedHeaders := aws_client.CreateCanonicalAndSignedHeaders(tt.request)
-			stringToSign, _ := aws_client.CreateStringToSign(tt.params, canonicalQuery, canonicalHeaders,
+			canonicalHeaders, signedHeaders := aws.CreateCanonicalAndSignedHeaders(tt.request)
+			stringToSign, _ := aws.CreateStringToSign(tt.params, canonicalQuery, canonicalHeaders,
 				signedHeaders, tt.hashedRequestPayload)
 			assert.Equal(t, tt.expectedStringToSign, stringToSign)
 		})
@@ -230,13 +230,13 @@ func TestCreateStringToSign(t *testing.T) {
 func TestCreateAuthorizationHeader(t *testing.T) {
 	tests := []struct {
 		name                        string
-		params                      aws_client.RolesAnywhereParams
+		params                      aws.RolesAnywhereParams
 		request                     *http.Request
 		expectedAuthorizationHeader string
 	}{
 		{
 			name: "TestCreateAuthorizationHeader_Valid",
-			params: aws_client.RolesAnywhereParams{
+			params: aws.RolesAnywhereParams{
 				ProfileArn:     "arn:aws:rolesanywhere:eu-west-2:123456789012:profile/test",
 				RoleArn:        "arn:aws:iam::123456789012:role/test",
 				TrustAnchorArn: "arn:aws:rolesanywhere:eu-west-2:123456789012:trust-anchor/test",
@@ -257,8 +257,8 @@ func TestCreateAuthorizationHeader(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			_, signedHeaders := aws_client.CreateCanonicalAndSignedHeaders(tt.request)
-			stringToSign, _ := aws_client.CreateAuthorizationHeader(
+			_, signedHeaders := aws.CreateCanonicalAndSignedHeaders(tt.request)
+			stringToSign, _ := aws.CreateAuthorizationHeader(
 				tt.params,
 				signedHeaders,
 				"some-signature",
@@ -327,7 +327,7 @@ func TestGetRolesAnywhereCredentials(t *testing.T) {
 				mockAWSServer.URL,
 				nil,
 			)
-			creds, err := aws_client.GetRolesAnywhereCredentials(mockRequest)
+			creds, err := aws.GetRolesAnywhereCredentials(mockRequest)
 
 			if tt.expectedGotCredentials {
 				assert.NoError(t, err)
@@ -359,7 +359,7 @@ func TestCreateRolesAnywhereSession(t *testing.T) {
 	ctx := context.Background()
 
 	// Declare the parameters
-	params := aws_client.RolesAnywhereParams{
+	params := aws.RolesAnywhereParams{
 		ProfileArn:      ProfileArn,
 		RoleArn:         RoleArn,
 		TrustAnchorArn:  TrustAnchorArn,
@@ -400,7 +400,7 @@ func TestCreateRolesAnywhereSession(t *testing.T) {
 	defer mockAWSServer.Close()
 
 	// Get the credentials
-	creds, err := aws_client.CreateRolesAnywhereSessionFromUrl(ctx, params, mockAWSServer.URL)
+	creds, err := aws.CreateRolesAnywhereSessionFromUrl(ctx, params, mockAWSServer.URL)
 	assert.NoError(t, err)
 	assert.NotNil(t, creds)
 }

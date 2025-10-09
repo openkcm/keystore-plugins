@@ -11,7 +11,7 @@ import (
 	operationsv1 "github.com/openkcm/plugin-sdk/proto/plugin/keystore/operations/v1"
 	configv1 "github.com/openkcm/plugin-sdk/proto/service/common/config/v1"
 
-	aws_client "github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/aws/client"
+	aws "github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/aws/client"
 )
 
 // AWSPlugin implements the KeystoreInstanceKeyOperationServer for AWSPlugin KMS
@@ -22,7 +22,7 @@ type AWSPlugin struct {
 	clientFactory func(
 		ctx context.Context,
 		config *kscommonv1.KeystoreInstanceConfig,
-		region string) (*aws_client.Client, error)
+		region string) (*aws.Client, error)
 }
 
 // Compiler check KeystoreInstanceKeyOperationServer interface properly implementated
@@ -33,7 +33,7 @@ func NewAWSPlugin(
 	clientFactory func(
 		ctx context.Context,
 		config *kscommonv1.KeystoreInstanceConfig,
-		region string) (*aws_client.Client, error),
+		region string) (*aws.Client, error),
 ) *AWSPlugin {
 	return &AWSPlugin{
 		clientFactory: clientFactory,

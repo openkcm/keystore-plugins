@@ -12,7 +12,7 @@ import (
 	"github.com/google/uuid"
 	"github.com/stretchr/testify/assert"
 
-	aws_client "github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/aws/client"
+	aws "github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/aws/client"
 	"github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/aws/client/mock"
 	"github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/base"
 )
@@ -34,7 +34,7 @@ var (
 func TestClient_GetNativeKey(t *testing.T) {
 	tests := []struct {
 		name       string
-		client     aws_client.ExportedKmsClient
+		client     aws.ExportedKmsClient
 		keyID      string
 		wantOutput *base.KeyOutput
 		wantErr    error
@@ -56,14 +56,14 @@ func TestClient_GetNativeKey(t *testing.T) {
 			client:     happyPathMock,
 			keyID:      "",
 			wantOutput: nil,
-			wantErr:    aws_client.ErrMissingID,
+			wantErr:    aws.ErrMissingID,
 		},
 		{
 			name:       "GetNativeKey_DescribeKeyError",
 			client:     errorMock,
 			keyID:      expectedKeyID,
 			wantOutput: nil,
-			wantErr:    aws_client.ErrDescribeKeyFailed,
+			wantErr:    aws.ErrDescribeKeyFailed,
 		},
 		{
 			name: "GetNativeKey_UnsupportedKeySpec",
@@ -78,13 +78,13 @@ func TestClient_GetNativeKey(t *testing.T) {
 				}),
 			keyID:      expectedKeyID,
 			wantOutput: nil,
-			wantErr:    aws_client.ErrUnsupportedKeySpec,
+			wantErr:    aws.ErrUnsupportedKeySpec,
 		},
 	}
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			c := aws_client.NewClientForTests(tt.client)
+			c := aws.NewClientForTests(tt.client)
 
 			output, err := c.GetKey(context.TODO(), tt.keyID)
 			if tt.wantErr != nil {
@@ -101,7 +101,7 @@ func TestClient_GetNativeKey(t *testing.T) {
 // Helper function to validate internal client and aws_options
 func validateClient(
 	t *testing.T,
-	client *aws_client.Client,
+	client *aws.Client,
 	region, key, secret string,
 	baseEndpoint ...*string,
 ) {
@@ -129,11 +129,11 @@ func TestNewClientWithOptions(t *testing.T) {
 	ctx := context.Background()
 	credentialsProvider := credentials.NewStaticCredentialsProvider(key, secret, token)
 
-	client := aws_client.NewClientWithOptions(
+	client := aws.NewClientWithOptions(
 		ctx,
 		region,
 		credentialsProvider,
-		aws_client.BaseEndpoint(baseEndpoint),
+		aws.BaseEndpoint(baseEndpoint),
 	)
 
 	validateClient(t, client, region, key, secret, &baseEndpoint)
@@ -143,7 +143,7 @@ func TestNewClientWithOptions(t *testing.T) {
 func TestNewClient(t *testing.T) {
 	ctx := context.Background()
 
-	client := aws_client.NewClient(ctx, region, key, secret)
+	client := aws.NewClient(ctx, region, key, secret)
 
 	validateClient(t, client, region, key, secret)
 }
@@ -154,7 +154,7 @@ func TestNewClientFromCredentialsProvider(t *testing.T) {
 	ctx := context.Background()
 	credentialsProvider := credentials.NewStaticCredentialsProvider(key, secret, token)
 
-	client := aws_client.NewClientFromCredentialsProvider(ctx, region, credentialsProvider)
+	client := aws.NewClientFromCredentialsProvider(ctx, region, credentialsProvider)
 
 	validateClient(t, client, region, key, secret)
 }
@@ -164,7 +164,7 @@ func TestNewClientFromCredentialsProvider(t *testing.T) {
 func TestNewBaseEndpointClient(t *testing.T) {
 	ctx := context.Background()
 
-	client := aws_client.NewBaseEndpointClient(ctx, region, baseEndpoint)
+	client := aws.NewBaseEndpointClient(ctx, region, baseEndpoint)
 
 	validateClient(t, client, region, "dummy", "dummy", &baseEndpoint)
 }
@@ -204,7 +204,7 @@ func TestConvertKeySpecToKeyAlgorithm(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result, err := aws_client.ConvertKeySpecToKeyAlgorithm(tt.keySpec)
+			result, err := aws.ConvertKeySpecToKeyAlgorithm(tt.keySpec)
 			if tt.expectErr {
 				assert.Error(t, err)
 			} else {
@@ -250,7 +250,7 @@ func TestConvertKeyStateToBaseKeyState(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			result := aws_client.ConvertKeyStateToBaseKeyState(tt.input)
+			result := aws.ConvertKeyStateToBaseKeyState(tt.input)
 			assert.Equal(t, tt.expected, result)
 		})
 	}
@@ -289,7 +289,7 @@ func TestConvertWrappingAlgorithmToBaseWrappingAlgorithmAndHash(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			wrapAlg, hash, err := aws_client.ConvertToBaseWrapAlgAndHash(tt.input)
+			wrapAlg, hash, err := aws.ConvertToBaseWrapAlgAndHash(tt.input)
 			if tt.wantErr {
 				assert.Error(t, err)
 			} else {
