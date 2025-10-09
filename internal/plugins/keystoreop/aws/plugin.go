@@ -2,8 +2,10 @@ package aws
 
 import (
 	"context"
+	"log/slog"
 
 	"github.com/hashicorp/go-hclog"
+	"github.com/openkcm/plugin-sdk/pkg/hclog2slog"
 
 	kscommonv1 "github.com/openkcm/plugin-sdk/proto/plugin/keystore/common/v1"
 	operationsv1 "github.com/openkcm/plugin-sdk/proto/plugin/keystore/operations/v1"
@@ -17,7 +19,6 @@ type AWSPlugin struct {
 	operationsv1.UnsafeKeystoreInstanceKeyOperationServer
 	configv1.UnsafeConfigServer
 
-	logger        hclog.Logger
 	clientFactory func(
 		ctx context.Context,
 		config *kscommonv1.KeystoreInstanceConfig,
@@ -48,5 +49,5 @@ func (ap *AWSPlugin) Configure(
 }
 
 func (ap *AWSPlugin) SetLogger(logger hclog.Logger) {
-	ap.logger = logger
+	slog.SetDefault(hclog2slog.New(logger))
 }
