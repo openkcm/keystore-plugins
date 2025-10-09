@@ -49,6 +49,15 @@ func SignWithRSAPrivateKey(privateKey *rsa.PrivateKey, content []byte) (string, 
 	hashedContent := calculateSHA256(content)
 
 	signature, err := rsa.SignPKCS1v15(rand.Reader, privateKey, crypto.SHA256, hashedContent)
+	//nolint:godox
+	//TODO: investigate using PSS instead of PKCS1v15
+	// Note: PSS produces different signatures for the same content each time due to random salt.
+	// This may or may not be desirable depending on the use case.
+	// uses RSA PKCS#1 v1.5 padding, which is considered legacy.
+	// It’s still supported for compatibility, but not recommended for new implementations because it’s vulnerable to certain attacks (like Bleichenbacher-style padding oracle attacks).
+	//signature, err := rsa.SignPSS(rand.Reader, privateKey, crypto.SHA256, hashedContent, &rsa.PSSOptions{
+	//	SaltLength: rsa.PSSSaltLengthAuto,
+	//})
 	if err != nil {
 		return "", fmt.Errorf("%w: %w", ErrFailedToSignWithRSAKey, err)
 	}
