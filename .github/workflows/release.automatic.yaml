@@ -11,5 +11,5 @@ permissions:
 
 jobs:
   release:
-    uses: openkcm/build/.github/workflows/release.plugin.yaml@main
+    uses: openkcm/build/.github/workflows/release.svc.yaml@main
     secrets: inherit
