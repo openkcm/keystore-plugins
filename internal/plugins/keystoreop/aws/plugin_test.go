@@ -24,12 +24,13 @@ var (
 	happyPathMock  = mock.HappyPathMock(expectedKeyID, expectedKeyArn, now)
 )
 
-func setupTest() *aws_keystore.AWSPlugin {
-	p := aws_keystore.NewAWSPlugin(
-		func(ctx context.Context, cfg *kscommonv1.KeystoreInstanceConfig, region string) (*aws.Client, error) {
+func setupTest() *aws_keystore.Plugin {
+	p := &aws_keystore.Plugin{
+		ClientFactory: func(ctx context.Context, cfg *kscommonv1.KeystoreInstanceConfig, region string) (*aws.Client, error) {
 			return aws.NewClientForTests(happyPathMock), nil
 		},
-	)
+	}
+
 	logLevelPlugin := new(slog.LevelVar)
 	logLevelPlugin.Set(slog.LevelError)
 

@@ -11,10 +11,10 @@ import (
 
 // main serves as the entry point for the AWSPlugin KMS plugin
 func main() {
-	awsPlugin := aws_plugin.NewAWSPlugin(aws_plugin.NewAWSClient)
+	p := aws_plugin.NewAWSPlugin()
 
 	plugin.Serve(
-		operationsv1.KeystoreInstanceKeyOperationPluginServer(awsPlugin),
-		configv1.ConfigServiceServer(awsPlugin),
+		operationsv1.KeystoreInstanceKeyOperationPluginServer(p),
+		configv1.ConfigServiceServer(p),
 	)
 }

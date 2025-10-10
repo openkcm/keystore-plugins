@@ -48,7 +48,7 @@ func extractRegionFromARN(arn string) (string, error) {
 	}
 }
 
-func (ap *AWSPlugin) getClientFromRequestParams(
+func (ap *Plugin) getClientFromRequestParams(
 	ctx context.Context,
 	params *operationsv1.RequestParameters,
 ) (*aws.Client, error) {
@@ -57,7 +57,7 @@ func (ap *AWSPlugin) getClientFromRequestParams(
 		return nil, err
 	}
 
-	client, err := ap.clientFactory(ctx, params.Config, region)
+	client, err := ap.ClientFactory(ctx, params.Config, region)
 	if err != nil {
 		return nil, err
 	}
@@ -66,7 +66,7 @@ func (ap *AWSPlugin) getClientFromRequestParams(
 }
 
 // CreateKey implements the CreateKey RPC method
-func (ap *AWSPlugin) CreateKey(
+func (ap *Plugin) CreateKey(
 	_ context.Context,
 	_ *operationsv1.CreateKeyRequest,
 ) (*operationsv1.CreateKeyResponse, error) {
@@ -74,7 +74,7 @@ func (ap *AWSPlugin) CreateKey(
 }
 
 // DeleteKey implements the DeleteKey RPC method
-func (ap *AWSPlugin) DeleteKey(
+func (ap *Plugin) DeleteKey(
 	_ context.Context,
 	_ *operationsv1.DeleteKeyRequest,
 ) (*operationsv1.DeleteKeyResponse, error) {
@@ -82,7 +82,7 @@ func (ap *AWSPlugin) DeleteKey(
 }
 
 // EnableKey implements the EnableKey RPC method
-func (ap *AWSPlugin) EnableKey(
+func (ap *Plugin) EnableKey(
 	_ context.Context,
 	_ *operationsv1.EnableKeyRequest,
 ) (*operationsv1.EnableKeyResponse, error) {
@@ -90,7 +90,7 @@ func (ap *AWSPlugin) EnableKey(
 }
 
 // DisableKey implements the DisableKey RPC method
-func (ap *AWSPlugin) DisableKey(
+func (ap *Plugin) DisableKey(
 	_ context.Context,
 	_ *operationsv1.DisableKeyRequest,
 ) (*operationsv1.DisableKeyResponse, error) {
@@ -98,7 +98,7 @@ func (ap *AWSPlugin) DisableKey(
 }
 
 // GetKey implements the GetKey RPC method
-func (ap *AWSPlugin) GetKey(
+func (ap *Plugin) GetKey(
 	ctx context.Context,
 	request *operationsv1.GetKeyRequest,
 ) (*operationsv1.GetKeyResponse, error) {
@@ -121,7 +121,7 @@ func (ap *AWSPlugin) GetKey(
 }
 
 // GetImportParameters implements the GetImportParameters RPC method
-func (ap *AWSPlugin) GetImportParameters(
+func (ap *Plugin) GetImportParameters(
 	_ context.Context,
 	_ *operationsv1.GetImportParametersRequest,
 ) (*operationsv1.GetImportParametersResponse, error) {
@@ -129,14 +129,14 @@ func (ap *AWSPlugin) GetImportParameters(
 }
 
 // ImportKeyMaterial implements the ImportKeyMaterial RPC method
-func (ap *AWSPlugin) ImportKeyMaterial(
+func (ap *Plugin) ImportKeyMaterial(
 	_ context.Context,
 	_ *operationsv1.ImportKeyMaterialRequest,
 ) (*operationsv1.ImportKeyMaterialResponse, error) {
 	return nil, fmt.Errorf("%w: %s", ErrOperationNotSupported, "ImportKeyMaterial is not supported")
 }
 
-func (ap *AWSPlugin) ValidateKey(
+func (ap *Plugin) ValidateKey(
 	_ context.Context,
 	request *operationsv1.ValidateKeyRequest,
 ) (*operationsv1.ValidateKeyResponse, error) {
@@ -184,7 +184,7 @@ func (ap *AWSPlugin) ValidateKey(
 	}), nil
 }
 
-func (ap *AWSPlugin) ValidateKeyAccessData(
+func (ap *Plugin) ValidateKeyAccessData(
 	_ context.Context,
 	accessData *operationsv1.ValidateKeyAccessDataRequest,
 ) (*operationsv1.ValidateKeyAccessDataResponse, error) {
@@ -206,7 +206,7 @@ func (ap *AWSPlugin) ValidateKeyAccessData(
 	}), nil
 }
 
-func (ap *AWSPlugin) TransformCryptoAccessData(
+func (ap *Plugin) TransformCryptoAccessData(
 	_ context.Context,
 	request *operationsv1.TransformCryptoAccessDataRequest,
 ) (*operationsv1.TransformCryptoAccessDataResponse, error) {
@@ -232,7 +232,7 @@ func (ap *AWSPlugin) TransformCryptoAccessData(
 	}, nil
 }
 
-func (ap *AWSPlugin) ExtractKeyRegion(
+func (ap *Plugin) ExtractKeyRegion(
 	_ context.Context,
 	request *operationsv1.ExtractKeyRegionRequest,
 ) (*operationsv1.ExtractKeyRegionResponse, error) {

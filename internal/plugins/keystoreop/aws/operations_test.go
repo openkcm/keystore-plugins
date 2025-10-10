@@ -24,10 +24,12 @@ const keyId = "arn:aws:kms:us-west-2:123456789012:key/12345678-90ab-cdef-1234-56
 
 // --- Helpers ---
 
-func newPlugin(client *mock.Mock) *aws_keystore.AWSPlugin {
-	return aws_keystore.NewAWSPlugin(func(ctx context.Context, cfg *kscommonv1.KeystoreInstanceConfig, region string) (*aws.Client, error) {
-		return aws.NewClientForTests(client), nil
-	})
+func newPlugin(client *mock.Mock) *aws_keystore.Plugin {
+	return &aws_keystore.Plugin{
+		ClientFactory: func(ctx context.Context, cfg *kscommonv1.KeystoreInstanceConfig, region string) (*aws.Client, error) {
+			return aws.NewClientForTests(client), nil
+		},
+	}
 }
 
 func newConfig(t *testing.T, values map[string]interface{}) *kscommonv1.KeystoreInstanceConfig {
