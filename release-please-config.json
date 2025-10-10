@@ -46,7 +46,9 @@
   "release-search-depth": 400,
   "packages": {
     ".": {
-      "release-type": "go"
+      "release-type": "go",
+      "bump-patch-for-minor-pre-major": true,
+      "bump-minor-pre-major": true
     }
   },
   "changelog": {
