@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.1](https://github.com/openkcm/keystore-plugins/compare/v0.1.0...v0.1.1) (2025-10-10)
+
+
+### Bug Fixes
+
+* release and publish workflows ([#58](https://github.com/openkcm/keystore-plugins/issues/58)) ([7dd5107](https://github.com/openkcm/keystore-plugins/commit/7dd51070eb870da75cb8bbe15ed58ef7a081bba3))
+
 ## [0.1.0](https://github.com/openkcm/keystore-plugins/compare/v1.0.0...v0.1.0) (2025-10-10)
 
 
