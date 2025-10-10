@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.2](https://github.com/openkcm/keystore-plugins/compare/v0.1.1...v0.1.2) (2025-10-10)
+
+
+### Bug Fixes
+
+* renamed the aws plugin structs ([#60](https://github.com/openkcm/keystore-plugins/issues/60)) ([31b4d85](https://github.com/openkcm/keystore-plugins/commit/31b4d8577d6573fc4da681027b37fb47804d14b2))
+
 ## [0.1.1](https://github.com/openkcm/keystore-plugins/compare/v0.1.0...v0.1.1) (2025-10-10)
 
 
