@@ -1,5 +1,14 @@
 # Changelog
 
+## [0.1.3](https://github.com/openkcm/keystore-plugins/compare/v0.1.2...v0.1.3) (2025-10-17)
+
+
+### Bug Fixes
+
+* **deps:** bump github.com/aws/smithy-go from 1.23.0 to 1.23.1 ([#63](https://github.com/openkcm/keystore-plugins/issues/63)) ([5be4dcb](https://github.com/openkcm/keystore-plugins/commit/5be4dcb0961883249654c1a5a3d141be4cebffea))
+* **deps:** bump github.com/openkcm/plugin-sdk from 0.7.1 to 0.8.0 ([#62](https://github.com/openkcm/keystore-plugins/issues/62)) ([9e3895a](https://github.com/openkcm/keystore-plugins/commit/9e3895a79ca9544a45acd8a0b6b821957cdea6e8))
+* publish workflow adjustments ([#64](https://github.com/openkcm/keystore-plugins/issues/64)) ([8c410d1](https://github.com/openkcm/keystore-plugins/commit/8c410d19c71ce955c4bc3f4fd70ed17cedb6ba21))
+
 ## [0.1.2](https://github.com/openkcm/keystore-plugins/compare/v0.1.1...v0.1.2) (2025-10-10)
 
 
