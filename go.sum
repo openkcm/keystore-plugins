@@ -64,8 +64,8 @@ github.com/mattn/go-isatty v0.0.20 h1:xfD0iDuEKnDkl03q4limB+vH+GxLEtL/jb4xVJSWWE
 github.com/mattn/go-isatty v0.0.20/go.mod h1:W+V8PltTTMOvKvAeJH7IuucS94S2C6jfK/D7dTCTo3Y=
 github.com/oklog/run v1.1.0 h1:GEenZ1cK0+q0+wsJew9qUg/DyD8k3JzYsZAi5gYi2mA=
 github.com/oklog/run v1.1.0/go.mod h1:sVPdnTZT1zYwAJeCMu2Th4T21pA3FPOQRfWjQlk7DVU=
-github.com/openkcm/plugin-sdk v0.8.0 h1:njGneMTWqTq3iiPAi5Kh3M67d5GnyasTUILv5pO4OHc=
-github.com/openkcm/plugin-sdk v0.8.0/go.mod h1:bIjttIxIylG/vGzIE2DDaJb++0a4/8y4Bwli4F8mCDE=
+github.com/openkcm/plugin-sdk v0.8.1 h1:uVmyJ3wvVdtnQsgvp0aDiovcEGQvsMf96PNL+y24PzA=
+github.com/openkcm/plugin-sdk v0.8.1/go.mod h1:yZd+1GhB6u8qxj1yQ2srBZXPervSXL1+22nIKl9IsoQ=
 github.com/pmezard/go-difflib v1.0.0 h1:4DBwDE0NGyQoBHbLQYPwSUPoCMWR5BEzIk/f1lZbAQM=
 github.com/pmezard/go-difflib v1.0.0/go.mod h1:iKH77koFhYxTK1pcRnkKkqfTogsbg7gZNVY4sRDYZ/4=
 github.com/stretchr/objx v0.1.0/go.mod h1:HFkY916IF+rwdDfMAkV7OtwuqBVzrE8GR6GFx+wExME=
