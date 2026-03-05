@@ -7,4 +7,5 @@ includes:
     vars:
       CODE_DIRS: '{{.ROOT_DIR}}/cmd/... {{.ROOT_DIR}}/internal/...'
       COMPONENTS: 'keystoreop/aws'
-      GENERATE_DOCS_INDEX: "false"
+      GENERATE_DOCS_INDEX: 'false'
+      DOCKER_FILE_IDENTIFIER: 'plugins'
