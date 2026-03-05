@@ -1,6 +1,6 @@
 module github.com/openkcm/keystore-plugins
 
-go 1.26.0
+go 1.25.6
 
 require (
 	github.com/aws/aws-sdk-go-v2 v1.41.3

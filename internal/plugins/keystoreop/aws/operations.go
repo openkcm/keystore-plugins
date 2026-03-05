@@ -141,18 +141,18 @@ func (ap *Plugin) ValidateKey(
 ) (*operationsv1.ValidateKeyResponse, error) {
 	// Validate key type
 	if request.KeyType == operationsv1.KeyType_KEY_TYPE_UNSPECIFIED {
-		return new(operationsv1.ValidateKeyResponse{
+		return &operationsv1.ValidateKeyResponse{
 			IsValid: false,
 			Message: "key type must be specified",
-		}), nil
+		}, nil
 	}
 
 	// Validate key algorithm
 	if request.Algorithm == operationsv1.KeyAlgorithm_KEY_ALGORITHM_UNSPECIFIED {
-		return new(operationsv1.ValidateKeyResponse{
+		return &operationsv1.ValidateKeyResponse{
 			IsValid: false,
 			Message: "algorithm must be specified",
-		}), nil
+		}, nil
 	}
 
 	var err error
@@ -163,24 +163,24 @@ func (ap *Plugin) ValidateKey(
 	if request.KeyType == operationsv1.KeyType_KEY_TYPE_HYOK {
 		region, err = extractRegionFromARN(request.NativeKeyId)
 		if err != nil {
-			return new(operationsv1.ValidateKeyResponse{
+			return &operationsv1.ValidateKeyResponse{
 				IsValid: false,
 				Message: fmt.Sprintf("failed to extract region from ARN: %s, error: %v", request.NativeKeyId, err),
-			}), nil
+			}, nil
 		}
 	}
 
 	// Validate region
 	if _, ok := validRegions[region]; !ok {
-		return new(operationsv1.ValidateKeyResponse{
+		return &operationsv1.ValidateKeyResponse{
 			IsValid: false,
 			Message: "invalid region: " + request.Region,
-		}), nil
+		}, nil
 	}
 
-	return new(operationsv1.ValidateKeyResponse{
+	return &operationsv1.ValidateKeyResponse{
 		IsValid: true,
-	}), nil
+	}, nil
 }
 
 func (ap *Plugin) ValidateKeyAccessData(
@@ -194,15 +194,15 @@ func (ap *Plugin) ValidateKeyAccessData(
 		accessData.GetCrypto(),
 	)
 	if err != nil {
-		return new(operationsv1.ValidateKeyAccessDataResponse{
+		return &operationsv1.ValidateKeyAccessDataResponse{
 			IsValid: false,
 			Message: err.Error(),
-		}), nil
+		}, nil
 	}
 
-	return new(operationsv1.ValidateKeyAccessDataResponse{
+	return &operationsv1.ValidateKeyAccessDataResponse{
 		IsValid: true,
-	}), nil
+	}, nil
 }
 
 func (ap *Plugin) TransformCryptoAccessData(

@@ -20,6 +20,7 @@ import (
 	aws_keystore "github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/aws"
 	awsclient "github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/aws/client"
 	"github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/base"
+	"github.com/openkcm/keystore-plugins/internal/utils/ptr"
 )
 
 // Helpers
@@ -117,7 +118,7 @@ func TestSecretAuthMethod_GetCredentials(t *testing.T) {
 			wantConfig: &common.AWSConfig{
 				AccessKeyID:     "test-access-key-id",
 				SecretAccessKey: "test-secret-access-key",
-				SessionToken:    new("test-session-token"),
+				SessionToken:    ptr.PointTo("test-session-token"),
 			},
 		},
 		{
