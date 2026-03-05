@@ -20,4 +20,7 @@ env:
 jobs:
   released:
     uses: openkcm/build/.github/workflows/publish.plugins.yaml@main
+    with:
+      # dispatch_repository_name: "cmk"
+      image_signing_enabled: true
     secrets: inherit
