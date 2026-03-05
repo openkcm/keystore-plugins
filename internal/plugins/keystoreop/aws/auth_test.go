@@ -52,7 +52,7 @@ func generateTestCertificate(t *testing.T) (string, string) {
 	return string(certPEM), string(privPEM)
 }
 
-func newStructReader(t *testing.T, cfg map[string]interface{}) *common.StructReader {
+func newStructReader(t *testing.T, cfg map[string]any) *common.StructReader {
 	t.Helper()
 
 	s, err := structpb.NewStruct(cfg)
@@ -90,13 +90,13 @@ func defaultMockRolesAnywhereSession(_ context.Context, _ awsclient.RolesAnywher
 func TestSecretAuthMethod_GetCredentials(t *testing.T) {
 	tests := []struct {
 		name       string
-		config     map[string]interface{}
+		config     map[string]any
 		wantErr    bool
 		wantConfig *common.AWSConfig
 	}{
 		{
 			name: "Valid credentials without session token",
-			config: map[string]interface{}{
+			config: map[string]any{
 				"accessKeyId":     "test-access-key-id",
 				"secretAccessKey": "test-secret-access-key",
 			},
@@ -109,7 +109,7 @@ func TestSecretAuthMethod_GetCredentials(t *testing.T) {
 		},
 		{
 			name: "Valid credentials with session token",
-			config: map[string]interface{}{
+			config: map[string]any{
 				"accessKeyId":     "test-access-key-id",
 				"secretAccessKey": "test-secret-access-key",
 				"sessionToken":    "test-session-token",
@@ -123,14 +123,14 @@ func TestSecretAuthMethod_GetCredentials(t *testing.T) {
 		},
 		{
 			name: "Missing accessKeyId",
-			config: map[string]interface{}{
+			config: map[string]any{
 				"secretAccessKey": "test-secret-access-key",
 			},
 			wantErr: true,
 		},
 		{
 			name: "Missing secretAccessKey",
-			config: map[string]interface{}{
+			config: map[string]any{
 				"accessKeyId": "test-access-key-id",
 			},
 			wantErr: true,
@@ -160,14 +160,14 @@ func TestCertificateAuthMethod_GetCredentials(t *testing.T) {
 
 	tests := []struct {
 		name                           string
-		config                         map[string]interface{}
+		config                         map[string]any
 		mockCreateRolesAnywhereSession func(ctx context.Context, params awsclient.RolesAnywhereParams) (*credentials.StaticCredentialsProvider, error)
 		wantErr                        bool
 		expectedError                  error
 	}{
 		{
 			name: "Valid credentials",
-			config: map[string]interface{}{
+			config: map[string]any{
 				"roleArn":        "test-role-arn",
 				"trustAnchorArn": "test-trust-anchor-arn",
 				"profileArn":     "test-profile-arn",
@@ -179,7 +179,7 @@ func TestCertificateAuthMethod_GetCredentials(t *testing.T) {
 		},
 		{
 			name: "Missing roleArn",
-			config: map[string]interface{}{
+			config: map[string]any{
 				"trustAnchorArn": "test-trust-anchor-arn",
 				"profileArn":     "test-profile-arn",
 				"clientCert":     clientCert,
@@ -189,7 +189,7 @@ func TestCertificateAuthMethod_GetCredentials(t *testing.T) {
 		},
 		{
 			name: "Missing trustAnchorArn",
-			config: map[string]interface{}{
+			config: map[string]any{
 				"roleArn":    "test-role-arn",
 				"profileArn": "test-profile-arn",
 				"clientCert": clientCert,
@@ -199,7 +199,7 @@ func TestCertificateAuthMethod_GetCredentials(t *testing.T) {
 		},
 		{
 			name: "Missing profileArn",
-			config: map[string]interface{}{
+			config: map[string]any{
 				"roleArn":        "test-role-arn",
 				"trustAnchorArn": "test-trust-anchor-arn",
 				"clientCert":     clientCert,
@@ -209,7 +209,7 @@ func TestCertificateAuthMethod_GetCredentials(t *testing.T) {
 		},
 		{
 			name: "Missing clientCert",
-			config: map[string]interface{}{
+			config: map[string]any{
 				"roleArn":        "test-role-arn",
 				"trustAnchorArn": "test-trust-anchor-arn",
 				"profileArn":     "test-profile-arn",
@@ -219,7 +219,7 @@ func TestCertificateAuthMethod_GetCredentials(t *testing.T) {
 		},
 		{
 			name: "Missing privateKey",
-			config: map[string]interface{}{
+			config: map[string]any{
 				"roleArn":        "test-role-arn",
 				"trustAnchorArn": "test-trust-anchor-arn",
 				"profileArn":     "test-profile-arn",
@@ -229,7 +229,7 @@ func TestCertificateAuthMethod_GetCredentials(t *testing.T) {
 		},
 		{
 			name: "Invalid clientCert",
-			config: map[string]interface{}{
+			config: map[string]any{
 				"roleArn":        "test-role-arn",
 				"trustAnchorArn": "test-trust-anchor-arn",
 				"profileArn":     "test-profile-arn",
@@ -241,7 +241,7 @@ func TestCertificateAuthMethod_GetCredentials(t *testing.T) {
 		},
 		{
 			name: "Invalid privateKey",
-			config: map[string]interface{}{
+			config: map[string]any{
 				"roleArn":        "test-role-arn",
 				"trustAnchorArn": "test-trust-anchor-arn",
 				"profileArn":     "test-profile-arn",
@@ -253,7 +253,7 @@ func TestCertificateAuthMethod_GetCredentials(t *testing.T) {
 		},
 		{
 			name: "Error creating roles anywhere session",
-			config: map[string]interface{}{
+			config: map[string]any{
 				"roleArn":        "test-role-arn",
 				"trustAnchorArn": "test-trust-anchor-arn",
 				"profileArn":     "test-profile-arn",
