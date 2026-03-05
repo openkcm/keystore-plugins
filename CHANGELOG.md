@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.4](https://github.com/openkcm/keystore-plugins/compare/v0.1.3...v0.1.4) (2026-03-05)
+
+
+### Bug Fixes
+
+* include changes into the publish.yaml workflow and Taskfile.yaml ([#81](https://github.com/openkcm/keystore-plugins/issues/81)) ([3544941](https://github.com/openkcm/keystore-plugins/commit/35449414cfaf4e7dc64f262caf0624433bd1b7d5))
+
 ## [0.1.3](https://github.com/openkcm/keystore-plugins/compare/v0.1.2...v0.1.3) (2025-10-17)
 
 
