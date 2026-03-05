@@ -22,7 +22,7 @@ func (p MockProcessor) Name() string {
 }
 
 func (p MockProcessor) ValidateJSONData(jsonData []byte) error {
-	var data map[string]interface{}
+	var data map[string]any
 	if err := json.Unmarshal(jsonData, &data); err != nil {
 		return fmt.Errorf("failed to parse JSON data: %v", err)
 	}

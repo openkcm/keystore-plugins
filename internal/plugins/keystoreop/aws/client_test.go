@@ -16,12 +16,12 @@ import (
 func TestGetClient(t *testing.T) {
 	tests := []struct {
 		name      string
-		config    map[string]interface{}
+		config    map[string]any
 		expectErr bool
 	}{
 		{
 			name: "valid SECRET config",
-			config: map[string]interface{}{
+			config: map[string]any{
 				"authType":        base.AuthTypeSecret,
 				"accessKeyId":     "test-access-key-id",
 				"secretAccessKey": "test-secret-access-key",
@@ -30,7 +30,7 @@ func TestGetClient(t *testing.T) {
 		},
 		{
 			name: "valid SECRET config with session token",
-			config: map[string]interface{}{
+			config: map[string]any{
 				"authType":        base.AuthTypeSecret,
 				"accessKeyId":     "test-access-key-id",
 				"secretAccessKey": "test-secret-access-key",
@@ -40,7 +40,7 @@ func TestGetClient(t *testing.T) {
 		},
 		{
 			name:      "invalid config",
-			config:    map[string]interface{}{},
+			config:    map[string]any{},
 			expectErr: true,
 		},
 		{

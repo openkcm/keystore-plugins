@@ -32,7 +32,7 @@ func newPlugin(client *mock.Mock) *aws_keystore.Plugin {
 	}
 }
 
-func newConfig(t *testing.T, values map[string]interface{}) *kscommonv1.KeystoreInstanceConfig {
+func newConfig(t *testing.T, values map[string]any) *kscommonv1.KeystoreInstanceConfig {
 	t.Helper()
 
 	anyConfig, err := structpb.NewStruct(values)
@@ -76,7 +76,7 @@ func TestAWSGetKey(t *testing.T) {
 
 	for _, tt := range tests {
 		t.Run(tt.name, func(t *testing.T) {
-			tt.req.Parameters.Config = newConfig(t, map[string]interface{}{
+			tt.req.Parameters.Config = newConfig(t, map[string]any{
 				"accessKeyId":     "test-access-key-id",
 				"secretAccessKey": "test-secret-access-key",
 			})

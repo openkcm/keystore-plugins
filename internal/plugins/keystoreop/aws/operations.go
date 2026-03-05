@@ -12,7 +12,6 @@ import (
 	"github.com/openkcm/keystore-plugins/internal/common"
 	aws "github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/aws/client"
 	"github.com/openkcm/keystore-plugins/internal/plugins/keystoreop/base"
-	"github.com/openkcm/keystore-plugins/internal/utils/ptr"
 )
 
 var (
@@ -142,7 +141,7 @@ func (ap *Plugin) ValidateKey(
 ) (*operationsv1.ValidateKeyResponse, error) {
 	// Validate key type
 	if request.KeyType == operationsv1.KeyType_KEY_TYPE_UNSPECIFIED {
-		return ptr.PointTo(operationsv1.ValidateKeyResponse{
+		return new(operationsv1.ValidateKeyResponse{
 			IsValid: false,
 			Message: "key type must be specified",
 		}), nil
@@ -150,7 +149,7 @@ func (ap *Plugin) ValidateKey(
 
 	// Validate key algorithm
 	if request.Algorithm == operationsv1.KeyAlgorithm_KEY_ALGORITHM_UNSPECIFIED {
-		return ptr.PointTo(operationsv1.ValidateKeyResponse{
+		return new(operationsv1.ValidateKeyResponse{
 			IsValid: false,
 			Message: "algorithm must be specified",
 		}), nil
@@ -164,7 +163,7 @@ func (ap *Plugin) ValidateKey(
 	if request.KeyType == operationsv1.KeyType_KEY_TYPE_HYOK {
 		region, err = extractRegionFromARN(request.NativeKeyId)
 		if err != nil {
-			return ptr.PointTo(operationsv1.ValidateKeyResponse{
+			return new(operationsv1.ValidateKeyResponse{
 				IsValid: false,
 				Message: fmt.Sprintf("failed to extract region from ARN: %s, error: %v", request.NativeKeyId, err),
 			}), nil
@@ -173,13 +172,13 @@ func (ap *Plugin) ValidateKey(
 
 	// Validate region
 	if _, ok := validRegions[region]; !ok {
-		return ptr.PointTo(operationsv1.ValidateKeyResponse{
+		return new(operationsv1.ValidateKeyResponse{
 			IsValid: false,
 			Message: "invalid region: " + request.Region,
 		}), nil
 	}
 
-	return ptr.PointTo(operationsv1.ValidateKeyResponse{
+	return new(operationsv1.ValidateKeyResponse{
 		IsValid: true,
 	}), nil
 }
@@ -195,13 +194,13 @@ func (ap *Plugin) ValidateKeyAccessData(
 		accessData.GetCrypto(),
 	)
 	if err != nil {
-		return ptr.PointTo(operationsv1.ValidateKeyAccessDataResponse{
+		return new(operationsv1.ValidateKeyAccessDataResponse{
 			IsValid: false,
 			Message: err.Error(),
 		}), nil
 	}
 
-	return ptr.PointTo(operationsv1.ValidateKeyAccessDataResponse{
+	return new(operationsv1.ValidateKeyAccessDataResponse{
 		IsValid: true,
 	}), nil
 }
