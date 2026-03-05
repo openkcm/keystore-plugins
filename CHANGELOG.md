@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.5](https://github.com/openkcm/keystore-plugins/compare/v0.1.4...v0.1.5) (2026-03-05)
+
+
+### Bug Fixes
+
+* updates required by lint tool ([#88](https://github.com/openkcm/keystore-plugins/issues/88)) ([b8cc65a](https://github.com/openkcm/keystore-plugins/commit/b8cc65ae6e76984f88ca545ed72ff47ff342eb2a))
+
 ## [0.1.4](https://github.com/openkcm/keystore-plugins/compare/v0.1.3...v0.1.4) (2026-03-05)
 
 
