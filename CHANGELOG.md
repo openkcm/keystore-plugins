@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.6](https://github.com/openkcm/keystore-plugins/compare/v0.1.5...v0.1.6) (2026-08-18)
+
+
+### Bug Fixes
+
+* add sonar and change the dependabot.yaml file ([#90](https://github.com/openkcm/keystore-plugins/issues/90)) ([46bcc04](https://github.com/openkcm/keystore-plugins/commit/46bcc047a73aaa3c534b0adb51e97998f49e8455))
+
 ## [0.1.5](https://github.com/openkcm/keystore-plugins/compare/v0.1.4...v0.1.5) (2026-03-05)
 
 
