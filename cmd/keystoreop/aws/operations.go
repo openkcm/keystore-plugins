@@ -86,14 +86,7 @@ func (ap *AWSPlugin) CreateKey(
 ) (*operationsv1.CreateKeyResponse, error) {
 	client, err := ap.clientFactory(ctx, request.Config, request.Region)
 	if err != nil {
-		if errors.Is(err, awsauth.ErrCreateRolesAnywhereSession) {
-			return nil, commonErrs.NewGrpcErrorWithDetails(
-				commonErrs.StatusProviderAuthenticationError,
-				ap.mapRolesAnywhereErrorReason(err),
-				nil,
-			)
-		}
-		return nil, err
+		return nil, ap.authenticationError(err)
 	}
 
 	keyAlgorithm := keystoreop.ConvertOperationsToBaseKeyAlgorithm(request.Algorithm)
@@ -183,15 +176,7 @@ func (ap *AWSPlugin) GetKeyVersions(
 ) (*operationsv1.GetKeyVersionsResponse, error) {
 	client, err := ap.getClientFromRequestParams(ctx, request.Parameters)
 	if err != nil {
-		// Return failure reason for authentication errors
-		if errors.Is(err, awsauth.ErrCreateRolesAnywhereSession) {
-			return nil, commonErrs.NewGrpcErrorWithDetails(
-				commonErrs.StatusProviderAuthenticationError,
-				ap.mapRolesAnywhereErrorReason(err),
-				nil,
-			)
-		}
-		return nil, err
+		return nil, ap.authenticationError(err)
 	}
 
 	result, err := client.GetKeyVerions(ctx, request.Parameters.KeyId)
@@ -230,15 +215,7 @@ func (ap *AWSPlugin) GetKey(
 ) (*operationsv1.GetKeyResponse, error) {
 	client, err := ap.getClientFromRequestParams(ctx, request.Parameters)
 	if err != nil {
-		// Return failure reason for authentication errors
-		if errors.Is(err, awsauth.ErrCreateRolesAnywhereSession) {
-			return nil, commonErrs.NewGrpcErrorWithDetails(
-				commonErrs.StatusProviderAuthenticationError,
-				ap.mapRolesAnywhereErrorReason(err),
-				nil,
-			)
-		}
-		return nil, err
+		return nil, ap.authenticationError(err)
 	}
 
 	result, err := client.GetKey(ctx, request.Parameters.KeyId)
@@ -460,6 +437,20 @@ func (ap *AWSPlugin) ExtractKeyRegion(
 	return &operationsv1.ExtractKeyRegionResponse{
 		Region: region,
 	}, nil
+}
+
+// authenticationError converts a Roles Anywhere session error into a gRPC
+// provider authentication error and returns any other error unchanged.
+func (ap *AWSPlugin) authenticationError(err error) error {
+	if !errors.Is(err, awsauth.ErrCreateRolesAnywhereSession) {
+		return err
+	}
+
+	return commonErrs.NewGrpcErrorWithDetails(
+		commonErrs.StatusProviderAuthenticationError,
+		ap.mapRolesAnywhereErrorReason(err),
+		nil,
+	)
 }
 
 func (ap *AWSPlugin) mapRolesAnywhereErrorReason(err error) string {
