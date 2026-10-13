@@ -23,7 +23,6 @@ import (
 	commonErrs "github.com/openkcm/plugin-sdk/pkg/plugin/keystore/errors"
 	kscommonv1 "github.com/openkcm/plugin-sdk/proto/plugin/keystore/common/v1"
 	operationsv1 "github.com/openkcm/plugin-sdk/proto/plugin/keystore/operations/v1"
-	"github.com/openkcm/utils/ptr"
 )
 
 const (
@@ -38,7 +37,7 @@ const (
 func setupConfig(t *testing.T) *kscommonv1.KeystoreInstanceConfig {
 	t.Helper()
 
-	configMap := map[string]interface{}{
+	configMap := map[string]any{
 		"accessKeyId":     "test-access-key-id",
 		"secretAccessKey": "test-secret-access-key",
 	}
@@ -180,7 +179,7 @@ func TestAWS_CreateKey(t *testing.T) {
 			name:   "Success_AES256",
 			client: happyPathMock,
 			req: &operationsv1.CreateKeyRequest{
-				Id:        ptr.PointTo(expectedID),
+				Id:        new(expectedID),
 				Algorithm: operationsv1.KeyAlgorithm_KEY_ALGORITHM_AES256,
 				KeyType:   operationsv1.KeyType_KEY_TYPE_SYSTEM_MANAGED,
 			},
@@ -191,7 +190,7 @@ func TestAWS_CreateKey(t *testing.T) {
 			name:   "Success_RSA3072",
 			client: happyPathMock,
 			req: &operationsv1.CreateKeyRequest{
-				Id:        ptr.PointTo(expectedID),
+				Id:        new(expectedID),
 				Algorithm: operationsv1.KeyAlgorithm_KEY_ALGORITHM_RSA3072,
 				KeyType:   operationsv1.KeyType_KEY_TYPE_SYSTEM_MANAGED,
 			},
@@ -202,7 +201,7 @@ func TestAWS_CreateKey(t *testing.T) {
 			name:   "Success_RSA4096",
 			client: happyPathMock,
 			req: &operationsv1.CreateKeyRequest{
-				Id:        ptr.PointTo(expectedID),
+				Id:        new(expectedID),
 				Algorithm: operationsv1.KeyAlgorithm_KEY_ALGORITHM_RSA4096,
 				KeyType:   operationsv1.KeyType_KEY_TYPE_SYSTEM_MANAGED,
 			},
@@ -213,7 +212,7 @@ func TestAWS_CreateKey(t *testing.T) {
 			name:   "Error_CreateKey",
 			client: errorMock,
 			req: &operationsv1.CreateKeyRequest{
-				Id:        ptr.PointTo(expectedID),
+				Id:        new(expectedID),
 				Algorithm: operationsv1.KeyAlgorithm_KEY_ALGORITHM_AES256,
 			},
 			wantErr: true,
@@ -222,7 +221,7 @@ func TestAWS_CreateKey(t *testing.T) {
 			name:   "Error_InvalidAlgorithm",
 			client: happyPathMock,
 			req: &operationsv1.CreateKeyRequest{
-				Id:        ptr.PointTo(expectedID),
+				Id:        new(expectedID),
 				Algorithm: operationsv1.KeyAlgorithm_KEY_ALGORITHM_UNSPECIFIED,
 			},
 			wantErr: true,
@@ -279,7 +278,7 @@ func TestAWS_DeleteKey(t *testing.T) {
 			client: happyPathMock,
 			req: &operationsv1.DeleteKeyRequest{
 				Parameters: &operationsv1.RequestParameters{KeyId: keyId},
-				Window:     ptr.PointTo(int32(7)),
+				Window:     new(int32(7)),
 			},
 			wantErr: false,
 		},
@@ -288,7 +287,7 @@ func TestAWS_DeleteKey(t *testing.T) {
 			client: happyPathMock,
 			req: &operationsv1.DeleteKeyRequest{
 				Parameters: &operationsv1.RequestParameters{KeyId: invalidKeyID},
-				Window:     ptr.PointTo(int32(7)),
+				Window:     new(int32(7)),
 			},
 			wantErr: true,
 		},
@@ -297,7 +296,7 @@ func TestAWS_DeleteKey(t *testing.T) {
 			client: errorMock,
 			req: &operationsv1.DeleteKeyRequest{
 				Parameters: &operationsv1.RequestParameters{KeyId: keyId},
-				Window:     ptr.PointTo(int32(7)),
+				Window:     new(int32(7)),
 			},
 			wantErr: true,
 		},
@@ -596,7 +595,7 @@ func TestAWS_ImportKeyMaterial(t *testing.T) {
 		name         string
 		client       *mock.Mock
 		req          *operationsv1.ImportKeyMaterialRequest
-		importParams map[string]interface{}
+		importParams map[string]any
 		wantErr      bool
 		wantStatus   *status.Status
 	}{
@@ -607,7 +606,7 @@ func TestAWS_ImportKeyMaterial(t *testing.T) {
 				Parameters:           &operationsv1.RequestParameters{KeyId: keyId},
 				EncryptedKeyMaterial: base64.StdEncoding.EncodeToString([]byte("material")),
 			},
-			importParams: map[string]interface{}{
+			importParams: map[string]any{
 				"providerParams": base64.StdEncoding.EncodeToString([]byte("token")),
 			},
 			wantErr: false,
@@ -619,7 +618,7 @@ func TestAWS_ImportKeyMaterial(t *testing.T) {
 				Parameters:           &operationsv1.RequestParameters{KeyId: invalidKeyID},
 				EncryptedKeyMaterial: base64.StdEncoding.EncodeToString([]byte("material")),
 			},
-			importParams: map[string]interface{}{
+			importParams: map[string]any{
 				"providerParams": base64.StdEncoding.EncodeToString([]byte("token")),
 			},
 			wantErr: true,
@@ -631,7 +630,7 @@ func TestAWS_ImportKeyMaterial(t *testing.T) {
 				Parameters:           &operationsv1.RequestParameters{KeyId: keyId},
 				EncryptedKeyMaterial: base64.StdEncoding.EncodeToString([]byte("material")),
 			},
-			importParams: map[string]interface{}{
+			importParams: map[string]any{
 				"providerParams": base64.StdEncoding.EncodeToString([]byte("token")),
 			},
 			wantErr: true,
@@ -643,7 +642,7 @@ func TestAWS_ImportKeyMaterial(t *testing.T) {
 				Parameters:           &operationsv1.RequestParameters{KeyId: keyId},
 				EncryptedKeyMaterial: base64.StdEncoding.EncodeToString([]byte("material")),
 			},
-			importParams: map[string]interface{}{
+			importParams: map[string]any{
 				"providerParams": "!!!not-base64!!!",
 			},
 			wantErr: true,
@@ -655,7 +654,7 @@ func TestAWS_ImportKeyMaterial(t *testing.T) {
 				Parameters:           &operationsv1.RequestParameters{KeyId: keyId},
 				EncryptedKeyMaterial: base64.StdEncoding.EncodeToString([]byte("material")),
 			},
-			importParams: map[string]interface{}{},
+			importParams: map[string]any{},
 			wantErr:      true,
 		},
 		{
@@ -665,7 +664,7 @@ func TestAWS_ImportKeyMaterial(t *testing.T) {
 				Parameters:           &operationsv1.RequestParameters{KeyId: keyId},
 				EncryptedKeyMaterial: "!!!not-base64!!!",
 			},
-			importParams: map[string]interface{}{
+			importParams: map[string]any{
 				"providerParams": base64.StdEncoding.EncodeToString([]byte("token")),
 			},
 			wantErr: true,
@@ -674,13 +673,13 @@ func TestAWS_ImportKeyMaterial(t *testing.T) {
 			name: "Error_InvalidCiphertext",
 			client: mock.NewMock().WithImportKeyMaterialFunc(
 				func(_ context.Context, _ *kms.ImportKeyMaterialInput, _ ...func(*kms.Options)) (*kms.ImportKeyMaterialOutput, error) {
-					return nil, &types.InvalidCiphertextException{Message: ptr.PointTo("decryption failed")}
+					return nil, &types.InvalidCiphertextException{Message: new("decryption failed")}
 				}),
 			req: &operationsv1.ImportKeyMaterialRequest{
 				Parameters:           &operationsv1.RequestParameters{KeyId: keyId},
 				EncryptedKeyMaterial: base64.StdEncoding.EncodeToString([]byte("material")),
 			},
-			importParams: map[string]interface{}{
+			importParams: map[string]any{
 				"providerParams": base64.StdEncoding.EncodeToString([]byte("token")),
 			},
 			wantErr:    true,
@@ -749,7 +748,7 @@ func TestValidateKey(t *testing.T) {
 				Region:      "us-east-1",
 				NativeKeyId: "arn:aws:kms:us-east-1:123456789012:key/abcd1234-5678-90ef-ghij-klmnopqrstuv",
 			},
-			expected: ptr.PointTo(operationsv1.ValidateKeyResponse{
+			expected: new(operationsv1.ValidateKeyResponse{
 				IsValid: true,
 			}),
 		},
@@ -760,7 +759,7 @@ func TestValidateKey(t *testing.T) {
 				Algorithm: operationsv1.KeyAlgorithm_KEY_ALGORITHM_RSA3072,
 				Region:    "us-east-1",
 			},
-			expected: ptr.PointTo(operationsv1.ValidateKeyResponse{
+			expected: new(operationsv1.ValidateKeyResponse{
 				IsValid: false,
 				Message: "key type must be specified",
 			}),
@@ -772,7 +771,7 @@ func TestValidateKey(t *testing.T) {
 				Algorithm: operationsv1.KeyAlgorithm_KEY_ALGORITHM_UNSPECIFIED,
 				Region:    "us-east-1",
 			},
-			expected: ptr.PointTo(operationsv1.ValidateKeyResponse{
+			expected: new(operationsv1.ValidateKeyResponse{
 				IsValid: false,
 				Message: "algorithm must be specified",
 			}),
@@ -785,7 +784,7 @@ func TestValidateKey(t *testing.T) {
 				Region:      "invalid-region",
 				NativeKeyId: "arn:aws:kms:invalid-region:123456789012:key/abcd1234-5678-90ef-ghij-klmnopqrstuv",
 			},
-			expected: ptr.PointTo(operationsv1.ValidateKeyResponse{
+			expected: new(operationsv1.ValidateKeyResponse{
 				IsValid: false,
 				Message: "invalid region: invalid-region",
 			}),
@@ -798,7 +797,7 @@ func TestValidateKey(t *testing.T) {
 				Region:      "us-east-1",
 				NativeKeyId: "invalid-arn",
 			},
-			expected: ptr.PointTo(operationsv1.ValidateKeyResponse{
+			expected: new(operationsv1.ValidateKeyResponse{
 				IsValid: false,
 				Message: "failed to extract region from ARN: invalid-arn, error: invalid ARN",
 			}),
@@ -1179,7 +1178,7 @@ func TestTransformCryptoAccessData(t *testing.T) {
 		{
 			name: "Valid Input",
 			inputJSON: func() []byte {
-				data := map[string]map[string]interface{}{
+				data := map[string]map[string]any{
 					"instance1": {
 						"trustAnchorArn": validTrustAnchorArnPrefix + "TrustAnchor1",
 						"profileArn":     validProfileArnPrefix + "Profile1",
@@ -1219,7 +1218,7 @@ func TestTransformCryptoAccessData(t *testing.T) {
 		{
 			name: "Missing Required Field",
 			inputJSON: func() []byte {
-				data := map[string]map[string]interface{}{
+				data := map[string]map[string]any{
 					"instance1": {
 						"trustAnchorArn": validTrustAnchorArnPrefix + "TrustAnchor1",
 						"profileArn":     validProfileArnPrefix + "Profile1",
@@ -1235,7 +1234,7 @@ func TestTransformCryptoAccessData(t *testing.T) {
 		{
 			name: "Empty Instance Name",
 			inputJSON: func() []byte {
-				data := map[string]map[string]interface{}{
+				data := map[string]map[string]any{
 					"": {
 						"trustAnchorArn": validTrustAnchorArnPrefix + "TrustAnchor1",
 						"profileArn":     validProfileArnPrefix + "Profile1",
@@ -1252,7 +1251,7 @@ func TestTransformCryptoAccessData(t *testing.T) {
 		{
 			name: "Empty Key ID",
 			inputJSON: func() []byte {
-				data := map[string]map[string]interface{}{
+				data := map[string]map[string]any{
 					"instance1": {
 						"trustAnchorArn": validTrustAnchorArnPrefix + "TrustAnchor1",
 						"profileArn":     validProfileArnPrefix + "Profile1",
@@ -1317,7 +1316,7 @@ func TestTransformCryptoAccessDataWithCertificateSubject(t *testing.T) {
 	certSubject := "CN=default.kms.aws,L=some-locality,OU=Platform Clients/dev/subaccount"
 
 	inputJSON := func() []byte {
-		data := map[string]map[string]interface{}{
+		data := map[string]map[string]any{
 			"instance1": {
 				"trustAnchorArn":     validTrustAnchorArnPrefix + "TrustAnchor1",
 				"profileArn":         validProfileArnPrefix + "Profile1",

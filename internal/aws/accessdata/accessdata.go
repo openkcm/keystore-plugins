@@ -23,10 +23,11 @@ func ToStruct(trustAnchorArn, roleArn, profileArn string) *structpb.Struct {
 }
 
 // FromStruct extracts AWS RolesAnywhere ARNs from a structpb.Struct.
-func FromStruct(s *structpb.Struct) (trustAnchorArn, roleArn, profileArn string) {
+// The values are returned in the order trustAnchorArn, roleArn, profileArn.
+func FromStruct(s *structpb.Struct) (string, string, string) {
 	fields := s.GetFields()
-	trustAnchorArn = fields[FieldTrustAnchorArn].GetStringValue()
-	roleArn = fields[FieldRoleArn].GetStringValue()
-	profileArn = fields[FieldProfileArn].GetStringValue()
-	return
+
+	return fields[FieldTrustAnchorArn].GetStringValue(),
+		fields[FieldRoleArn].GetStringValue(),
+		fields[FieldProfileArn].GetStringValue()
 }

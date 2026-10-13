@@ -91,7 +91,6 @@ func (m *Mock) DescribeKey(
 	}
 
 	panic("DescribeKeyFunc not implemented")
-
 }
 
 // GetParametersForImport calls GetParametersForImportFunc if set, otherwise it panics.
@@ -268,7 +267,7 @@ func (m *Mock) WithUpdateAliasFunc(f UpdateAliasFuncType) *Mock {
 }
 
 // HappyPathMock creates a new instance of Mock with all methods returning success.
-func HappyPathMock(expectedKeyID string, expectedKeyArn string, time time.Time) *Mock {
+func HappyPathMock(expectedKeyID string, expectedKeyArn string, time time.Time) *Mock { //nolint:funlen // flat builder chain configuring every mocked method
 	return NewMock().WithCreateKeyFunc(
 		func(_ context.Context,
 			_ *kms.CreateKeyInput,

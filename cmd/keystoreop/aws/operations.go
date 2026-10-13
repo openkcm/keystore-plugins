@@ -18,7 +18,6 @@ import (
 	"github.com/openkcm/internal/common/keystoreop"
 	commonErrs "github.com/openkcm/plugin-sdk/pkg/plugin/keystore/errors"
 	operationsv1 "github.com/openkcm/plugin-sdk/proto/plugin/keystore/operations/v1"
-	"github.com/openkcm/utils/ptr"
 )
 
 var (
@@ -287,7 +286,7 @@ func (ap *AWSPlugin) GetImportParameters(
 		return nil, fmt.Errorf("failed to get import parameters: %w", err)
 	}
 
-	importParametersStruct, err := structpb.NewStruct(map[string]interface{}{
+	importParametersStruct, err := structpb.NewStruct(map[string]any{
 		"keyID":             importParams.ID,
 		"publicKey":         importParams.PublicKey,
 		"providerParams":    importParams.ProviderParams,
@@ -362,7 +361,7 @@ func (ap *AWSPlugin) ValidateKey(
 ) (*operationsv1.ValidateKeyResponse, error) {
 	// Validate key type
 	if request.KeyType == operationsv1.KeyType_KEY_TYPE_UNSPECIFIED {
-		return ptr.PointTo(operationsv1.ValidateKeyResponse{
+		return new(operationsv1.ValidateKeyResponse{
 			IsValid: false,
 			Message: "key type must be specified",
 		}), nil
@@ -370,7 +369,7 @@ func (ap *AWSPlugin) ValidateKey(
 
 	// Validate key algorithm
 	if request.Algorithm == operationsv1.KeyAlgorithm_KEY_ALGORITHM_UNSPECIFIED {
-		return ptr.PointTo(operationsv1.ValidateKeyResponse{
+		return new(operationsv1.ValidateKeyResponse{
 			IsValid: false,
 			Message: "algorithm must be specified",
 		}), nil
@@ -383,7 +382,7 @@ func (ap *AWSPlugin) ValidateKey(
 	if request.KeyType == operationsv1.KeyType_KEY_TYPE_HYOK {
 		region, err = extractRegionFromARN(request.NativeKeyId)
 		if err != nil {
-			return ptr.PointTo(operationsv1.ValidateKeyResponse{
+			return new(operationsv1.ValidateKeyResponse{
 				IsValid: false,
 				Message: fmt.Sprintf("failed to extract region from ARN: %s, error: %v", request.NativeKeyId, err),
 			}), nil
@@ -392,13 +391,13 @@ func (ap *AWSPlugin) ValidateKey(
 
 	// Validate region
 	if _, ok := validRegions[region]; !ok {
-		return ptr.PointTo(operationsv1.ValidateKeyResponse{
+		return new(operationsv1.ValidateKeyResponse{
 			IsValid: false,
-			Message: fmt.Sprintf("invalid region: %s", request.Region),
+			Message: "invalid region: " + request.Region,
 		}), nil
 	}
 
-	return ptr.PointTo(operationsv1.ValidateKeyResponse{
+	return new(operationsv1.ValidateKeyResponse{
 		IsValid: true,
 	}), nil
 }
@@ -413,12 +412,12 @@ func (ap *AWSPlugin) ValidateKeyAccessData(
 		accessData.GetCrypto(),
 	)
 	if err != nil {
-		return ptr.PointTo(operationsv1.ValidateKeyAccessDataResponse{
+		return new(operationsv1.ValidateKeyAccessDataResponse{
 			IsValid: false,
 		}), err
 	}
 
-	return ptr.PointTo(operationsv1.ValidateKeyAccessDataResponse{
+	return new(operationsv1.ValidateKeyAccessDataResponse{
 		IsValid: true,
 	}), nil
 }
@@ -429,12 +428,12 @@ func (ap *AWSPlugin) TransformCryptoAccessData(
 ) (*operationsv1.TransformCryptoAccessDataResponse, error) {
 	keyID := request.GetNativeKeyId()
 	if keyID == "" {
-		return nil, fmt.Errorf("AWS key ARN must be present in the keyID field of the request")
+		return nil, errors.New("AWS key ARN must be present in the keyID field of the request")
 	}
 
 	jsonBytes := request.GetAccessData()
 	if jsonBytes == nil {
-		return nil, fmt.Errorf("crypto access data cannot be nil")
+		return nil, errors.New("crypto access data cannot be nil")
 	}
 
 	processor := keystoreop.NewAccessDataProcessor(awsAccessData.NewAWSAccessDataProcessor())
@@ -452,7 +451,7 @@ func (ap *AWSPlugin) ExtractKeyRegion(
 	request *operationsv1.ExtractKeyRegionRequest,
 ) (*operationsv1.ExtractKeyRegionResponse, error) {
 	if request == nil {
-		return nil, fmt.Errorf("nil request")
+		return nil, errors.New("nil request")
 	}
 	region, err := extractRegionFromARN(request.NativeKeyId)
 	if err != nil {

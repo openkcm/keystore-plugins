@@ -20,6 +20,7 @@ var BuildInfo = "{}"
 type AWSPlugin struct {
 	operationsv1.UnsafeKeystoreInstanceKeyOperationServer
 	configv1.UnsafeConfigServer
+
 	logger        hclog.Logger
 	clientFactory func(
 		ctx context.Context,

@@ -2,8 +2,8 @@ package keystoreop
 
 import (
 	"encoding/json"
-	"github.com/hashicorp/go-hclog"
 
+	"github.com/hashicorp/go-hclog"
 	"google.golang.org/protobuf/encoding/protojson"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/structpb"
@@ -16,6 +16,14 @@ const (
 	GrpcErrorReasonInvalidAccessDataType = "INVALID_ACCESS_DATA_TYPE"
 	GrpcErrorReasonInvalidProtoStruct    = "INVALID_PROTO_STRUCT"
 	GrpcErrorReasonEmptyInstanceName     = "EMPTY_INSTANCE_NAME"
+)
+
+// Metadata keys and values attached to access data validation errors.
+const (
+	metadataKeyType          = "type"
+	metadataKeyInstance      = "instance"
+	accessDataTypeManagement = "management"
+	accessDataTypeCrypto     = "crypto"
 )
 
 type ProviderProcessor interface {
@@ -51,7 +59,7 @@ func (adp *AccessDataProcessor) ValidateKeyAccessData(
 	err := adp.validateKeyAccessDataStruct(managementAccessData)
 	if err != nil {
 		return commonErrs.WithMetadata(err, map[string]string{
-			"type": "management",
+			metadataKeyType: accessDataTypeManagement,
 		})
 	}
 
@@ -60,8 +68,8 @@ func (adp *AccessDataProcessor) ValidateKeyAccessData(
 			return commonErrs.NewGrpcErrorWithDetails(
 				commonErrs.StatusInvalidKeyAccessData, GrpcErrorReasonMissingAccessData,
 				map[string]string{
-					"type":     "crypto",
-					"instance": instanceName,
+					metadataKeyType:     accessDataTypeCrypto,
+					metadataKeyInstance: instanceName,
 				})
 		}
 
@@ -70,8 +78,8 @@ func (adp *AccessDataProcessor) ValidateKeyAccessData(
 			return commonErrs.NewGrpcErrorWithDetails(
 				commonErrs.StatusInvalidKeyAccessData, GrpcErrorReasonInvalidAccessDataType,
 				map[string]string{
-					"type":     "crypto",
-					"instance": instanceName,
+					metadataKeyType:     accessDataTypeCrypto,
+					metadataKeyInstance: instanceName,
 				})
 		}
 
@@ -80,8 +88,8 @@ func (adp *AccessDataProcessor) ValidateKeyAccessData(
 			return commonErrs.NewGrpcErrorWithDetails(
 				commonErrs.StatusInvalidKeyAccessData, GrpcErrorReasonInvalidProtoStruct,
 				map[string]string{
-					"type":     "crypto",
-					"instance": instanceName,
+					metadataKeyType:     accessDataTypeCrypto,
+					metadataKeyInstance: instanceName,
 				})
 		}
 
@@ -89,8 +97,8 @@ func (adp *AccessDataProcessor) ValidateKeyAccessData(
 		if err != nil {
 			return commonErrs.WithMetadata(err,
 				map[string]string{
-					"type":     "crypto",
-					"instance": instanceName,
+					metadataKeyType:     accessDataTypeCrypto,
+					metadataKeyInstance: instanceName,
 				})
 		}
 	}
@@ -121,7 +129,7 @@ func (adp *AccessDataProcessor) TransformCryptoAccessData(
 		if err != nil {
 			return nil, commonErrs.WithMetadata(err,
 				map[string]string{
-					"instance": instanceName,
+					metadataKeyInstance: instanceName,
 				})
 		}
 
@@ -131,7 +139,7 @@ func (adp *AccessDataProcessor) TransformCryptoAccessData(
 			return nil, commonErrs.NewGrpcErrorWithDetails(
 				commonErrs.StatusInvalidKeyAccessData, GrpcErrorReasonInvalidProtoStruct,
 				map[string]string{
-					"instance": instanceName,
+					metadataKeyInstance: instanceName,
 				})
 		}
 
@@ -141,7 +149,7 @@ func (adp *AccessDataProcessor) TransformCryptoAccessData(
 			return nil, commonErrs.NewGrpcErrorWithDetails(
 				commonErrs.StatusInvalidKeyAccessData, GrpcErrorReasonInvalidProtoStruct,
 				map[string]string{
-					"instance": instanceName,
+					metadataKeyInstance: instanceName,
 				})
 		}
 		transformedCryptoAccessDataMap[instanceName] = cryptoAccessProtoBytes

@@ -18,7 +18,6 @@ import (
 	"github.com/openkcm/internal/aws/plugins/keystoreop/mock"
 	"github.com/openkcm/internal/common/keystoreop"
 	cryptoUtils "github.com/openkcm/utils/crypto"
-	"github.com/openkcm/utils/ptr"
 )
 
 var (
@@ -678,7 +677,7 @@ func TestClient_ImportKeyMaterial(t *testing.T) {
 			keyID: expectedKeyID,
 			client: mock.NewMock().WithImportKeyMaterialFunc(
 				func(_ context.Context, _ *kms.ImportKeyMaterialInput, _ ...func(*kms.Options)) (*kms.ImportKeyMaterialOutput, error) {
-					return nil, &types.InvalidCiphertextException{Message: ptr.PointTo("decryption failed")}
+					return nil, &types.InvalidCiphertextException{Message: new("decryption failed")}
 				}),
 			importToken:          []byte("token"),
 			encryptedKeyMaterial: []byte("material"),
@@ -823,11 +822,11 @@ func TestCreateScheduleKeyDeletionInputFromDeleteOptions(t *testing.T) {
 			name:  "CreateScheduleKeyDeletionInput_WindowSet",
 			keyID: expectedKeyID,
 			options: keystoreop.DeleteOptions{
-				Window: ptr.PointTo(int32(7)),
+				Window: new(int32(7)),
 			},
 			want: &kms.ScheduleKeyDeletionInput{
 				KeyId:               &expectedKeyID,
-				PendingWindowInDays: ptr.PointTo(int32(7)),
+				PendingWindowInDays: new(int32(7)),
 			},
 		},
 		{

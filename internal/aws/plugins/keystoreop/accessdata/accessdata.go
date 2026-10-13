@@ -31,15 +31,15 @@ var (
 )
 
 var (
-	ErrorCannotParseAccessData = commonErrs.NewGrpcErrorWithDetails(
+	ErrCannotParseAccessData = commonErrs.NewGrpcErrorWithDetails(
 		commonErrs.StatusInvalidKeyAccessData, commonErrs.ReasonCannotParseData, nil)
-	ErrorInvalidTrustAnchor = commonErrs.NewGrpcErrorWithDetails(
+	ErrInvalidTrustAnchor = commonErrs.NewGrpcErrorWithDetails(
 		commonErrs.StatusInvalidKeyAccessData, GrpcErrorReasonInvalidTrustAnchor, nil)
-	ErrorInvalidProfile = commonErrs.NewGrpcErrorWithDetails(
+	ErrInvalidProfile = commonErrs.NewGrpcErrorWithDetails(
 		commonErrs.StatusInvalidKeyAccessData, GrpcErrorReasonInvalidProfile, nil)
-	ErrorInvalidRole = commonErrs.NewGrpcErrorWithDetails(
+	ErrInvalidRole = commonErrs.NewGrpcErrorWithDetails(
 		commonErrs.StatusInvalidKeyAccessData, GrpcErrorReasonInvalidRole, nil)
-	ErrorARNAccountMismatch = commonErrs.NewGrpcErrorWithDetails(
+	ErrARNAccountMismatch = commonErrs.NewGrpcErrorWithDetails(
 		commonErrs.StatusInvalidKeyAccessData, GrpcErrorReasonARNAccountMismatch, nil)
 )
 
@@ -58,7 +58,7 @@ func (p AWSAccessDataProcessor) ValidateJSONData(jsonData []byte) error {
 	var awsData awsProto.AWSKeyAccessData
 	err := protojson.Unmarshal(jsonData, &awsData)
 	if err != nil {
-		return ErrorCannotParseAccessData
+		return ErrCannotParseAccessData
 	}
 
 	// Validate required fields
@@ -85,20 +85,20 @@ func (p AWSAccessDataProcessor) ValidateJSONData(jsonData []byte) error {
 
 	// Validate ARN formats
 	if !trustAnchorRegex.MatchString(awsData.TrustAnchorArn) {
-		return ErrorInvalidTrustAnchor
+		return ErrInvalidTrustAnchor
 	}
 
 	if !profileRegex.MatchString(awsData.ProfileArn) {
-		return ErrorInvalidProfile
+		return ErrInvalidProfile
 	}
 
 	if !roleRegex.MatchString(awsData.RoleArn) {
-		return ErrorInvalidRole
+		return ErrInvalidRole
 	}
 
 	// Validate ARNs belong to the same AWS account
 	if !validateARNsFromSameAccount(awsData.TrustAnchorArn, awsData.ProfileArn, awsData.RoleArn) {
-		return ErrorARNAccountMismatch
+		return ErrARNAccountMismatch
 	}
 
 	return nil
@@ -130,5 +130,5 @@ func validateARNsFromSameAccount(trustAnchorArn, profileArn, roleArn string) boo
 	accountFromTrustAnchor := strings.Split(trustAnchorArn, ":")[4]
 	accountFromProfile := strings.Split(profileArn, ":")[4]
 
-	return accountFromRole == accountFromTrustAnchor && accountFromRole == accountFromProfile
+	return accountFromRole == accountFromTrustAnchor && accountFromTrustAnchor == accountFromProfile
 }

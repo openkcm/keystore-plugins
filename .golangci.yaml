@@ -8,8 +8,10 @@ linters:
   default: all
   disable:
     - wsl
+    - wsl_v5
     - depguard
     - exhaustruct
+    - exhaustruct_v5
     - ginkgolinter
     - gochecknoglobals
     - gochecknoinits

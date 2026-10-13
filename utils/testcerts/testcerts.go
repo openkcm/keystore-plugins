@@ -11,20 +11,22 @@ import (
 	"time"
 )
 
+const rsaKeyBits = 2048
+
 // NewRSAKey generates a 2048-bit RSA private key. Fails the test on error.
-func NewRSAKey(t testing.TB) *rsa.PrivateKey {
-	t.Helper()
-	key, err := rsa.GenerateKey(rand.Reader, 2048)
+func NewRSAKey(tb testing.TB) *rsa.PrivateKey {
+	tb.Helper()
+	key, err := rsa.GenerateKey(rand.Reader, rsaKeyBits)
 	if err != nil {
-		t.Fatalf("testcerts.NewRSAKey: %v", err)
+		tb.Fatalf("testcerts.NewRSAKey: %v", err)
 	}
 	return key
 }
 
 // NewCert generates an x509 certificate for key. If parent or signerKey are nil
 // the certificate is self-signed. Set isCA to true to produce a CA certificate.
-func NewCert(t testing.TB, key *rsa.PrivateKey, isCA bool, parent *x509.Certificate, signerKey *rsa.PrivateKey) *x509.Certificate {
-	t.Helper()
+func NewCert(tb testing.TB, key *rsa.PrivateKey, isCA bool, parent *x509.Certificate, signerKey *rsa.PrivateKey) *x509.Certificate {
+	tb.Helper()
 	if signerKey == nil {
 		signerKey = key
 	}
@@ -41,11 +43,11 @@ func NewCert(t testing.TB, key *rsa.PrivateKey, isCA bool, parent *x509.Certific
 	}
 	der, err := x509.CreateCertificate(rand.Reader, template, parent, &key.PublicKey, signerKey)
 	if err != nil {
-		t.Fatalf("testcerts.NewCert: CreateCertificate: %v", err)
+		tb.Fatalf("testcerts.NewCert: CreateCertificate: %v", err)
 	}
 	cert, err := x509.ParseCertificate(der)
 	if err != nil {
-		t.Fatalf("testcerts.NewCert: ParseCertificate: %v", err)
+		tb.Fatalf("testcerts.NewCert: ParseCertificate: %v", err)
 	}
 	return cert
 }
@@ -67,10 +69,10 @@ func CertPEM(cert *x509.Certificate) string {
 }
 
 // NewKeyAndCertPEM generates a fresh RSA key and self-signed certificate,
-// returning both as PEM strings. This is the most common pattern across tests.
-func NewKeyAndCertPEM(t testing.TB) (keyPEM, certPEM string) {
-	t.Helper()
-	key := NewRSAKey(t)
-	cert := NewCert(t, key, false, nil, nil)
+// returning the key and certificate as PEM strings, in that order. This is the most common pattern across tests.
+func NewKeyAndCertPEM(tb testing.TB) (string, string) {
+	tb.Helper()
+	key := NewRSAKey(tb)
+	cert := NewCert(tb, key, false, nil, nil)
 	return RSAKeyPEM(key), CertPEM(cert)
 }

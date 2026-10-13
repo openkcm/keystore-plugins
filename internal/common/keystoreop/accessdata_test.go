@@ -19,7 +19,7 @@ func (p MockProcessor) Name() string {
 }
 
 func (p MockProcessor) ValidateJSONData(jsonData []byte) error {
-	var data map[string]interface{}
+	var data map[string]any
 	err := json.Unmarshal(jsonData, &data)
 	if err != nil {
 		return commonErrs.NewGrpcErrorWithDetails(
@@ -97,7 +97,6 @@ func TestValidateKeyAccessDataWithMissingRequiredFieldInManagementData(t *testin
 	reason, metadata := commonErrs.GetDetails(err)
 	assert.Equal(t, "MISSING_REQUIRED_FIELD", reason)
 	assert.Equal(t, "management", metadata["type"])
-
 }
 
 func TestValidateKeyAccessDataWithMissingInstanceData(t *testing.T) {

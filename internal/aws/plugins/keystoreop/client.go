@@ -18,7 +18,6 @@ import (
 	"github.com/openkcm/internal/common/keystoreop"
 	cryptoUtils "github.com/openkcm/utils/crypto"
 	"github.com/openkcm/utils/must"
-	"github.com/openkcm/utils/ptr"
 )
 
 // kmsClient defines the methods of the AWS KMS client that we use.
@@ -235,8 +234,7 @@ func (c *Client) ensureAlias(ctx context.Context, keyID, id string) error {
 	alias := prepareAlias(id)
 
 	if err := c.createAlias(ctx, keyID, alias); err != nil {
-		var alreadyExistsException *types.AlreadyExistsException
-		if !errors.As(err, &alreadyExistsException) {
+		if _, ok := errors.AsType[*types.AlreadyExistsException](err); !ok {
 			return err
 		}
 		// Alias already existed (e.g. from a prior partial create) — update it to point to the new key.
@@ -250,8 +248,8 @@ func (c *Client) ensureAlias(ctx context.Context, keyID, id string) error {
 func (c *Client) createAlias(ctx context.Context, keyID, aliasName string) error {
 	_, err := c.internalClient.CreateAlias(ctx,
 		&kms.CreateAliasInput{
-			AliasName:   ptr.PointTo(aliasName),
-			TargetKeyId: ptr.PointTo(keyID),
+			AliasName:   new(aliasName),
+			TargetKeyId: new(keyID),
 		})
 	if err != nil {
 		return fmt.Errorf("%w: %w", ErrNativeCreateAliasFailed, err)
@@ -263,8 +261,8 @@ func (c *Client) createAlias(ctx context.Context, keyID, aliasName string) error
 // updateAlias updates the alias with the given aliasName to point to the key with the given keyID
 func (c *Client) updateAlias(ctx context.Context, keyID, aliasName string) error {
 	_, err := c.internalClient.UpdateAlias(ctx, &kms.UpdateAliasInput{
-		AliasName:   ptr.PointTo(aliasName),
-		TargetKeyId: ptr.PointTo(keyID),
+		AliasName:   new(aliasName),
+		TargetKeyId: new(keyID),
 	})
 	if err != nil {
 		return fmt.Errorf("%w: %w", ErrNativeUpdateAliasFailed, err)
@@ -300,8 +298,7 @@ func (c *Client) DeleteKey(
 
 	_, err := c.internalClient.ScheduleKeyDeletion(ctx, input)
 	if err != nil {
-		var kmsInvalidStateException *types.KMSInvalidStateException
-		if errors.As(err, &kmsInvalidStateException) {
+		if _, ok := errors.AsType[*types.KMSInvalidStateException](err); ok {
 			stateErr := keystoreop.InvalidStateError{Message: "key is probably already deleted"}
 			return fmt.Errorf("%w: %w", &stateErr, err)
 		}
@@ -314,7 +311,7 @@ func (c *Client) DeleteKey(
 
 // EnableKey enables the key with the given keyID
 func (c *Client) EnableKey(ctx context.Context, keyID string) error {
-	_, err := c.internalClient.EnableKey(ctx, &kms.EnableKeyInput{KeyId: ptr.PointTo(keyID)})
+	_, err := c.internalClient.EnableKey(ctx, &kms.EnableKeyInput{KeyId: new(keyID)})
 	if err != nil {
 		return fmt.Errorf("%w: %w", ErrEnabledKeyFailed, err)
 	}
@@ -326,7 +323,7 @@ func (c *Client) EnableKey(ctx context.Context, keyID string) error {
 func (c *Client) DisableKey(ctx context.Context, keyID string) error {
 	_, err := c.internalClient.DisableKey(
 		ctx,
-		&kms.DisableKeyInput{KeyId: ptr.PointTo(keyID)},
+		&kms.DisableKeyInput{KeyId: new(keyID)},
 	)
 	if err != nil {
 		return fmt.Errorf("%w: %w", ErrDisabledKeyFailed, err)
@@ -381,6 +378,22 @@ func convertToBaseWrapAlgAndHash(
 	}
 }
 
+// wrapAPIError maps an AWS access-denied API error to ErrAccessDenied and wraps
+// any other error with fallback.
+func wrapAPIError(err error, fallback error) error {
+	if operationErr, ok := errors.AsType[*smithy.OperationError](err); ok {
+		if apiErr, ok := errors.AsType[smithy.APIError](operationErr.Err); ok {
+			if apiErr.ErrorCode() == "AccessDeniedException" {
+				return fmt.Errorf("%w: %v", ErrAccessDenied, apiErr.ErrorMessage())
+			}
+
+			return fmt.Errorf("%w: %v", fallback, apiErr.ErrorMessage())
+		}
+	}
+
+	return fmt.Errorf("%w: %w", fallback, err)
+}
+
 func (c *Client) GetKeyVerions(ctx context.Context, keyID string) ([]*keystoreop.KeyVersion, error) {
 	// AWS doesn't provide a way to order the versions
 	rotationResult, err := c.internalClient.ListKeyRotations(ctx, &kms.ListKeyRotationsInput{
@@ -388,17 +401,7 @@ func (c *Client) GetKeyVerions(ctx context.Context, keyID string) ([]*keystoreop
 		IncludeKeyMaterial: types.IncludeKeyMaterialAllKeyMaterial,
 	})
 	if err != nil {
-		var operationErr *smithy.OperationError
-		if errors.As(err, &operationErr) {
-			var apiErr smithy.APIError
-			if errors.As(operationErr.Err, &apiErr) {
-				if apiErr.ErrorCode() == "AccessDeniedException" {
-					return nil, fmt.Errorf("%w: %v", ErrAccessDenied, apiErr.ErrorMessage())
-				}
-				return nil, fmt.Errorf("%w: %v", ErrListKeyRotationsFailed, apiErr.ErrorMessage())
-			}
-		}
-		return nil, fmt.Errorf("%w: %w", ErrListKeyRotationsFailed, err)
+		return nil, wrapAPIError(err, ErrListKeyRotationsFailed)
 	}
 
 	slices.SortFunc(rotationResult.Rotations, func(a, b types.RotationsListEntry) int {
@@ -439,26 +442,11 @@ func (c *Client) GetKey(
 
 	result, err := c.internalClient.DescribeKey(ctx, describeKeyInput)
 	if err != nil {
-		var (
-			notFoundExc  *types.NotFoundException
-			operationErr *smithy.OperationError
-		)
-
-		switch {
-		case errors.As(err, &notFoundExc):
+		if _, ok := errors.AsType[*types.NotFoundException](err); ok {
 			return nil, ErrNativeKeyNotFound
-		case errors.As(err, &operationErr):
-			var apiErr smithy.APIError
-			if errors.As(operationErr.Err, &apiErr) {
-				if apiErr.ErrorCode() == "AccessDeniedException" {
-					return nil, fmt.Errorf("%w: %v", ErrAccessDenied, apiErr.ErrorMessage())
-				}
-				return nil, fmt.Errorf("%w: %v", ErrDescribeKeyFailed, apiErr.ErrorMessage())
-			}
-			return nil, fmt.Errorf("%w: %w", ErrDescribeKeyFailed, err)
-		default:
-			return nil, fmt.Errorf("%w: %w", ErrDescribeKeyFailed, err)
 		}
+
+		return nil, wrapAPIError(err, ErrDescribeKeyFailed)
 	}
 
 	if result.KeyMetadata.KeyUsage != types.KeyUsageTypeEncryptDecrypt {
@@ -555,8 +543,7 @@ func (c *Client) ImportKeyMaterial(
 
 	_, err := c.internalClient.ImportKeyMaterial(ctx, input)
 	if err != nil {
-		var invalidCiphertextErr *types.InvalidCiphertextException
-		if errors.As(err, &invalidCiphertextErr) {
+		if _, ok := errors.AsType[*types.InvalidCiphertextException](err); ok {
 			return fmt.Errorf("%w: %w", ErrInvalidKeyMaterial, err)
 		}
 		return fmt.Errorf("%w: %w", ErrImportKeyMaterialFailed, err)
