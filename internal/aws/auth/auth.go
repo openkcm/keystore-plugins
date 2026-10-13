@@ -7,7 +7,6 @@ import (
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/credentials"
-	"google.golang.org/protobuf/types/known/structpb"
 
 	"github.com/openkcm/internal/aws/rolesanywhere"
 	"github.com/openkcm/internal/common"
@@ -137,39 +136,4 @@ func (m *CertificateAuthMethod) GetCredentials(
 		SecretAccessKey: creds.Value.SecretAccessKey,
 		SessionToken:    &creds.Value.SessionToken,
 	}, nil
-}
-
-// AWSAuthFactory creates appropriate auth method based on auth type
-func AWSAuthFactory(authType string) (AWSAuthMethod, error) {
-	switch authType {
-	case common.AuthTypeSecret:
-		return &SecretAuthMethod{}, nil
-	case common.AuthTypeCertificate:
-		return &CertificateAuthMethod{
-			rolesanywhere.CreateSession,
-		}, nil
-	default:
-		return nil, fmt.Errorf("%w: %s", ErrInvalidAuth, authType)
-	}
-}
-
-// GetCredentialsFromStruct reads authType from the struct, selects the appropriate
-// auth method, and returns resolved AWS credentials.
-func GetCredentialsFromStruct(ctx context.Context, s *structpb.Struct) (*AWSConfig, error) {
-	reader, err := common.NewStructReader(s)
-	if err != nil {
-		return nil, err
-	}
-
-	authType, err := reader.GetString("authType")
-	if err != nil {
-		return nil, err
-	}
-
-	authMethod, err := AWSAuthFactory(authType)
-	if err != nil {
-		return nil, err
-	}
-
-	return authMethod.GetCredentials(ctx, reader)
 }

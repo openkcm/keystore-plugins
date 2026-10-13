@@ -32,6 +32,12 @@ make build
 make proto
 ```
 
+## Plugins
+
+| Plugin | Description |
+|--------|-------------|
+| [AWS keystore operations](cmd/keystoreop/aws/README.md) | Key operations on AWS KMS, with configurable authentication: ambient credentials (IRSA, Pod Identity, instance roles), an access key, STS assume role, IAM Roles Anywhere, or per-request credentials |
+
 ## Support, Feedback, Contributing
 
 This project is open to feature requests/suggestions, bug reports etc. via [GitHub issues](https://github.com/openkcm/issues). Contribution and feedback are encouraged and always welcome. For more information about how to contribute, the project structure, as well as additional contribution information, see our [Contribution Guidelines](https://github.com/openkcm/.github/blob/main/CONTRIBUTING.md).

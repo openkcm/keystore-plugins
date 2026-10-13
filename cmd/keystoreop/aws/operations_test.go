@@ -14,6 +14,8 @@ import (
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/types/known/structpb"
 
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
+
 	ap "github.com/openkcm/cmd/keystoreop/aws"
 	awsauth "github.com/openkcm/internal/aws/auth"
 	aws "github.com/openkcm/internal/aws/plugins/keystoreop"
@@ -38,6 +40,7 @@ func setupConfig(t *testing.T) *kscommonv1.KeystoreInstanceConfig {
 	t.Helper()
 
 	configMap := map[string]any{
+		"authType":        "AUTH_TYPE_SECRET",
 		"accessKeyId":     "test-access-key-id",
 		"secretAccessKey": "test-secret-access-key",
 	}
@@ -54,7 +57,7 @@ func TestAWS_GetKey(t *testing.T) {
 	tests := []struct {
 		name         string
 		client       *mock.Mock
-		setupFactory func() func(context.Context, *kscommonv1.KeystoreInstanceConfig, string) (*aws.Client, error)
+		setupFactory func() ap.ClientFactory
 		req          *operationsv1.GetKeyRequest
 		want         *operationsv1.GetKeyResponse
 		wantErr      bool
@@ -113,8 +116,8 @@ func TestAWS_GetKey(t *testing.T) {
 				Parameters: &operationsv1.RequestParameters{KeyId: keyId},
 			},
 			wantErr: true,
-			setupFactory: func() func(context.Context, *kscommonv1.KeystoreInstanceConfig, string) (*aws.Client, error) {
-				return func(ctx context.Context, cfg *kscommonv1.KeystoreInstanceConfig, region string) (*aws.Client, error) {
+			setupFactory: func() ap.ClientFactory {
+				return func(ctx context.Context, region string, _ awssdk.CredentialsProvider) (*aws.Client, error) {
 					return nil, awsauth.ErrCreateRolesAnywhereSession
 				}
 			},
@@ -130,8 +133,8 @@ func TestAWS_GetKey(t *testing.T) {
 
 			factory := func(
 				ctx context.Context,
-				cfg *kscommonv1.KeystoreInstanceConfig,
 				region string,
+				_ awssdk.CredentialsProvider,
 			) (*aws.Client, error) {
 				return aws.NewClientForTests(tt.client), nil
 			}
@@ -243,7 +246,7 @@ func TestAWS_CreateKey(t *testing.T) {
 			tt.req.Config = config
 
 			p := ap.NewAWSPlugin(
-				func(ctx context.Context, cfg *kscommonv1.KeystoreInstanceConfig, region string) (*aws.Client, error) {
+				func(ctx context.Context, region string, _ awssdk.CredentialsProvider) (*aws.Client, error) {
 					return aws.NewClientForTests(tt.client), nil
 				},
 				buildInfo,
@@ -309,7 +312,7 @@ func TestAWS_DeleteKey(t *testing.T) {
 			tt.req.Parameters.Config = config
 
 			p := ap.NewAWSPlugin(
-				func(ctx context.Context, cfg *kscommonv1.KeystoreInstanceConfig, region string) (*aws.Client, error) {
+				func(ctx context.Context, region string, _ awssdk.CredentialsProvider) (*aws.Client, error) {
 					return aws.NewClientForTests(tt.client), nil
 				},
 				buildInfo,
@@ -371,7 +374,7 @@ func TestAWS_EnableKey(t *testing.T) {
 			tt.req.Parameters.Config = config
 
 			p := ap.NewAWSPlugin(
-				func(ctx context.Context, cfg *kscommonv1.KeystoreInstanceConfig, region string) (*aws.Client, error) {
+				func(ctx context.Context, region string, _ awssdk.CredentialsProvider) (*aws.Client, error) {
 					return aws.NewClientForTests(tt.client), nil
 				},
 				buildInfo,
@@ -433,7 +436,7 @@ func TestAWS_DisableKey(t *testing.T) {
 			tt.req.Parameters.Config = config
 
 			p := ap.NewAWSPlugin(
-				func(ctx context.Context, cfg *kscommonv1.KeystoreInstanceConfig, region string) (*aws.Client, error) {
+				func(ctx context.Context, region string, _ awssdk.CredentialsProvider) (*aws.Client, error) {
 					return aws.NewClientForTests(tt.client), nil
 				},
 				buildInfo,
@@ -568,7 +571,7 @@ func TestAWS_GetImportParametersResponse(t *testing.T) {
 			tt.req.Parameters.Config = config
 
 			p := ap.NewAWSPlugin(
-				func(ctx context.Context, cfg *kscommonv1.KeystoreInstanceConfig, region string) (*aws.Client, error) {
+				func(ctx context.Context, region string, _ awssdk.CredentialsProvider) (*aws.Client, error) {
 					return aws.NewClientForTests(tt.client), nil
 				},
 				buildInfo,
@@ -702,7 +705,7 @@ func TestAWS_ImportKeyMaterial(t *testing.T) {
 			}
 
 			p := ap.NewAWSPlugin(
-				func(ctx context.Context, cfg *kscommonv1.KeystoreInstanceConfig, region string) (*aws.Client, error) {
+				func(ctx context.Context, region string, _ awssdk.CredentialsProvider) (*aws.Client, error) {
 					return aws.NewClientForTests(tt.client), nil
 				},
 				buildInfo,
@@ -729,7 +732,7 @@ func TestAWS_ImportKeyMaterial(t *testing.T) {
 func TestValidateKey(t *testing.T) {
 	client := mock.HappyPathMock(expectedKeyID, expectedKeyArn, now)
 	p := ap.NewAWSPlugin(
-		func(ctx context.Context, cfg *kscommonv1.KeystoreInstanceConfig, region string) (*aws.Client, error) {
+		func(ctx context.Context, region string, _ awssdk.CredentialsProvider) (*aws.Client, error) {
 			return aws.NewClientForTests(client), nil
 		},
 		buildInfo,
@@ -815,7 +818,7 @@ func TestValidateKey(t *testing.T) {
 func TestValidateKeyAccessData(t *testing.T) {
 	client := mock.HappyPathMock(expectedKeyID, expectedKeyArn, now)
 	p := ap.NewAWSPlugin(
-		func(ctx context.Context, cfg *kscommonv1.KeystoreInstanceConfig, region string) (*aws.Client, error) {
+		func(ctx context.Context, region string, _ awssdk.CredentialsProvider) (*aws.Client, error) {
 			return aws.NewClientForTests(client), nil
 		},
 		buildInfo,
@@ -1107,7 +1110,7 @@ func TestValidateKeyAccessData(t *testing.T) {
 func TestExtractKeyRegion(t *testing.T) {
 	client := mock.HappyPathMock(expectedKeyID, expectedKeyArn, now)
 	p := ap.NewAWSPlugin(
-		func(ctx context.Context, cfg *kscommonv1.KeystoreInstanceConfig, region string) (*aws.Client, error) {
+		func(ctx context.Context, region string, _ awssdk.CredentialsProvider) (*aws.Client, error) {
 			return aws.NewClientForTests(client), nil
 		},
 		buildInfo,
@@ -1162,7 +1165,7 @@ func TestExtractKeyRegion(t *testing.T) {
 func TestTransformCryptoAccessData(t *testing.T) {
 	client := mock.HappyPathMock(expectedKeyID, expectedKeyArn, now)
 	p := ap.NewAWSPlugin(
-		func(ctx context.Context, cfg *kscommonv1.KeystoreInstanceConfig, region string) (*aws.Client, error) {
+		func(ctx context.Context, region string, _ awssdk.CredentialsProvider) (*aws.Client, error) {
 			return aws.NewClientForTests(client), nil
 		},
 		buildInfo,
@@ -1307,7 +1310,7 @@ func TestTransformCryptoAccessData(t *testing.T) {
 func TestTransformCryptoAccessDataWithCertificateSubject(t *testing.T) {
 	client := mock.HappyPathMock(expectedKeyID, expectedKeyArn, now)
 	p := ap.NewAWSPlugin(
-		func(ctx context.Context, cfg *kscommonv1.KeystoreInstanceConfig, region string) (*aws.Client, error) {
+		func(ctx context.Context, region string, _ awssdk.CredentialsProvider) (*aws.Client, error) {
 			return aws.NewClientForTests(client), nil
 		},
 		buildInfo,

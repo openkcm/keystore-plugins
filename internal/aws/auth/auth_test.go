@@ -247,23 +247,3 @@ func TestCertificateAuthMethod_GetCredentials(t *testing.T) {
 		})
 	}
 }
-
-func TestAWSAuthFactory(t *testing.T) {
-	tests := []struct {
-		authType string
-		wantErr  bool
-	}{
-		{common.AuthTypeSecret, false},
-		{common.AuthTypeCertificate, false},
-		{"invalid", true},
-	}
-
-	for _, tt := range tests {
-		t.Run(tt.authType, func(t *testing.T) {
-			_, err := auth.AWSAuthFactory(tt.authType)
-			if (err != nil) != tt.wantErr {
-				t.Errorf("AWSAuthFactory() error = %v, wantErr %v", err, tt.wantErr)
-			}
-		})
-	}
-}
