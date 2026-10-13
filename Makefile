@@ -71,4 +71,4 @@ tidy:
 .PHONY: proto
 proto:
 	protoc --go_out=. --go_opt=module=github.com/openkcm/keystore-plugins \
-		--go-grpc_out=./pkg/proto --go-grpc_opt=module=github.com/openkcm/keystore-plugins/pkg/proto proto/*.proto
+		--go-grpc_out=./pkg/proto --go-grpc_opt=module=github.com/openkcm/keystore-plugins/pkg/proto $$(find proto -name '*.proto')

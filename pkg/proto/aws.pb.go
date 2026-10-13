@@ -2,7 +2,7 @@
 // versions:
 // 	protoc-gen-go v1.36.12
 // 	protoc        v7.36.2
-// source: proto/aws.proto
+// source: proto/aws/v1/aws.proto
 
 package proto
 
@@ -26,7 +26,7 @@ type AWSKeyAccessData struct {
 	KeyIdentifier      string                 `protobuf:"bytes,1,opt,name=key_identifier,json=keyIdentifier,proto3" json:"key_identifier,omitempty"`             // Unified key identifier
 	VersionIdentifier  string                 `protobuf:"bytes,2,opt,name=version_identifier,json=versionIdentifier,proto3" json:"version_identifier,omitempty"` // Key version ID
 	CertificateSubject string                 `protobuf:"bytes,3,opt,name=certificate_subject,json=certificateSubject,proto3" json:"certificate_subject,omitempty"`
-	// Deprecated: Marked as deprecated in proto/aws.proto.
+	// Deprecated: Marked as deprecated in proto/aws/v1/aws.proto.
 	KeyArn         string `protobuf:"bytes,10,opt,name=key_arn,json=keyArn,proto3" json:"key_arn,omitempty"`
 	TrustAnchorArn string `protobuf:"bytes,20,opt,name=trust_anchor_arn,json=trustAnchorArn,proto3" json:"trust_anchor_arn,omitempty"`
 	ProfileArn     string `protobuf:"bytes,30,opt,name=profile_arn,json=profileArn,proto3" json:"profile_arn,omitempty"`
@@ -37,7 +37,7 @@ type AWSKeyAccessData struct {
 
 func (x *AWSKeyAccessData) Reset() {
 	*x = AWSKeyAccessData{}
-	mi := &file_proto_aws_proto_msgTypes[0]
+	mi := &file_proto_aws_v1_aws_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -49,7 +49,7 @@ func (x *AWSKeyAccessData) String() string {
 func (*AWSKeyAccessData) ProtoMessage() {}
 
 func (x *AWSKeyAccessData) ProtoReflect() protoreflect.Message {
-	mi := &file_proto_aws_proto_msgTypes[0]
+	mi := &file_proto_aws_v1_aws_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -62,7 +62,7 @@ func (x *AWSKeyAccessData) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use AWSKeyAccessData.ProtoReflect.Descriptor instead.
 func (*AWSKeyAccessData) Descriptor() ([]byte, []int) {
-	return file_proto_aws_proto_rawDescGZIP(), []int{0}
+	return file_proto_aws_v1_aws_proto_rawDescGZIP(), []int{0}
 }
 
 func (x *AWSKeyAccessData) GetKeyIdentifier() string {
@@ -86,7 +86,7 @@ func (x *AWSKeyAccessData) GetCertificateSubject() string {
 	return ""
 }
 
-// Deprecated: Marked as deprecated in proto/aws.proto.
+// Deprecated: Marked as deprecated in proto/aws/v1/aws.proto.
 func (x *AWSKeyAccessData) GetKeyArn() string {
 	if x != nil {
 		return x.KeyArn
@@ -115,11 +115,11 @@ func (x *AWSKeyAccessData) GetRoleArn() string {
 	return ""
 }
 
-var File_proto_aws_proto protoreflect.FileDescriptor
+var File_proto_aws_v1_aws_proto protoreflect.FileDescriptor
 
-const file_proto_aws_proto_rawDesc = "" +
+const file_proto_aws_v1_aws_proto_rawDesc = "" +
 	"\n" +
-	"\x0fproto/aws.proto\x12\x05proto\"\x9c\x02\n" +
+	"\x16proto/aws/v1/aws.proto\x12\fproto.aws.v1\"\x9c\x02\n" +
 	"\x10AWSKeyAccessData\x12%\n" +
 	"\x0ekey_identifier\x18\x01 \x01(\tR\rkeyIdentifier\x12-\n" +
 	"\x12version_identifier\x18\x02 \x01(\tR\x11versionIdentifier\x12/\n" +
@@ -132,22 +132,22 @@ const file_proto_aws_proto_rawDesc = "" +
 	"\brole_arn\x18( \x01(\tR\aroleArnB/Z-github.com/openkcm/keystore-plugins/pkg/protob\x06proto3"
 
 var (
-	file_proto_aws_proto_rawDescOnce sync.Once
-	file_proto_aws_proto_rawDescData []byte
+	file_proto_aws_v1_aws_proto_rawDescOnce sync.Once
+	file_proto_aws_v1_aws_proto_rawDescData []byte
 )
 
-func file_proto_aws_proto_rawDescGZIP() []byte {
-	file_proto_aws_proto_rawDescOnce.Do(func() {
-		file_proto_aws_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_aws_proto_rawDesc), len(file_proto_aws_proto_rawDesc)))
+func file_proto_aws_v1_aws_proto_rawDescGZIP() []byte {
+	file_proto_aws_v1_aws_proto_rawDescOnce.Do(func() {
+		file_proto_aws_v1_aws_proto_rawDescData = protoimpl.X.CompressGZIP(unsafe.Slice(unsafe.StringData(file_proto_aws_v1_aws_proto_rawDesc), len(file_proto_aws_v1_aws_proto_rawDesc)))
 	})
-	return file_proto_aws_proto_rawDescData
+	return file_proto_aws_v1_aws_proto_rawDescData
 }
 
-var file_proto_aws_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
-var file_proto_aws_proto_goTypes = []any{
-	(*AWSKeyAccessData)(nil), // 0: proto.AWSKeyAccessData
+var file_proto_aws_v1_aws_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
+var file_proto_aws_v1_aws_proto_goTypes = []any{
+	(*AWSKeyAccessData)(nil), // 0: proto.aws.v1.AWSKeyAccessData
 }
-var file_proto_aws_proto_depIdxs = []int32{
+var file_proto_aws_v1_aws_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
 	0, // [0:0] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
@@ -155,26 +155,26 @@ var file_proto_aws_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for field type_name
 }
 
-func init() { file_proto_aws_proto_init() }
-func file_proto_aws_proto_init() {
-	if File_proto_aws_proto != nil {
+func init() { file_proto_aws_v1_aws_proto_init() }
+func file_proto_aws_v1_aws_proto_init() {
+	if File_proto_aws_v1_aws_proto != nil {
 		return
 	}
 	type x struct{}
 	out := protoimpl.TypeBuilder{
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
-			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_aws_proto_rawDesc), len(file_proto_aws_proto_rawDesc)),
+			RawDescriptor: unsafe.Slice(unsafe.StringData(file_proto_aws_v1_aws_proto_rawDesc), len(file_proto_aws_v1_aws_proto_rawDesc)),
 			NumEnums:      0,
 			NumMessages:   1,
 			NumExtensions: 0,
 			NumServices:   0,
 		},
-		GoTypes:           file_proto_aws_proto_goTypes,
-		DependencyIndexes: file_proto_aws_proto_depIdxs,
-		MessageInfos:      file_proto_aws_proto_msgTypes,
+		GoTypes:           file_proto_aws_v1_aws_proto_goTypes,
+		DependencyIndexes: file_proto_aws_v1_aws_proto_depIdxs,
+		MessageInfos:      file_proto_aws_v1_aws_proto_msgTypes,
 	}.Build()
-	File_proto_aws_proto = out.File
-	file_proto_aws_proto_goTypes = nil
-	file_proto_aws_proto_depIdxs = nil
+	File_proto_aws_v1_aws_proto = out.File
+	file_proto_aws_v1_aws_proto_goTypes = nil
+	file_proto_aws_v1_aws_proto_depIdxs = nil
 }
