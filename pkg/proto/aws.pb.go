@@ -119,7 +119,7 @@ var File_proto_aws_proto protoreflect.FileDescriptor
 
 const file_proto_aws_proto_rawDesc = "" +
 	"\n" +
-	"\x0fproto/aws.proto\"\x9c\x02\n" +
+	"\x0fproto/aws.proto\x12\fproto.aws.v1\"\x9c\x02\n" +
 	"\x10AWSKeyAccessData\x12%\n" +
 	"\x0ekey_identifier\x18\x01 \x01(\tR\rkeyIdentifier\x12-\n" +
 	"\x12version_identifier\x18\x02 \x01(\tR\x11versionIdentifier\x12/\n" +
@@ -145,7 +145,7 @@ func file_proto_aws_proto_rawDescGZIP() []byte {
 
 var file_proto_aws_proto_msgTypes = make([]protoimpl.MessageInfo, 1)
 var file_proto_aws_proto_goTypes = []any{
-	(*AWSKeyAccessData)(nil), // 0: AWSKeyAccessData
+	(*AWSKeyAccessData)(nil), // 0: proto.aws.v1.AWSKeyAccessData
 }
 var file_proto_aws_proto_depIdxs = []int32{
 	0, // [0:0] is the sub-list for method output_type
