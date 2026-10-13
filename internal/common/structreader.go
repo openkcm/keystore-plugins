@@ -3,7 +3,6 @@ package common
 import (
 	"errors"
 	"fmt"
-
 	"google.golang.org/protobuf/types/known/structpb"
 )
 
@@ -23,7 +22,6 @@ func NewStructReader(config *structpb.Struct) (*StructReader, error) {
 	if config == nil {
 		return nil, ErrNilConfig
 	}
-
 	return &StructReader{fields: config.Fields}, nil
 }
 

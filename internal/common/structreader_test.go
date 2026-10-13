@@ -6,7 +6,7 @@ import (
 	"github.com/stretchr/testify/assert"
 	"google.golang.org/protobuf/types/known/structpb"
 
-	"github.com/openkcm/keystore-plugins/internal/common"
+	"github.com/openkcm/internal/common"
 )
 
 func TestNewConfigReader(t *testing.T) {
@@ -17,7 +17,7 @@ func TestNewConfigReader(t *testing.T) {
 	})
 
 	t.Run("valid config", func(t *testing.T) {
-		config, err := structpb.NewStruct(map[string]any{
+		config, err := structpb.NewStruct(map[string]interface{}{
 			"key": "value",
 		})
 		assert.NoError(t, err)
@@ -29,7 +29,7 @@ func TestNewConfigReader(t *testing.T) {
 }
 
 func TestConfigReader_GetString(t *testing.T) {
-	config, err := structpb.NewStruct(map[string]any{
+	config, err := structpb.NewStruct(map[string]interface{}{
 		"key": "value",
 	})
 	assert.NoError(t, err)
@@ -50,7 +50,7 @@ func TestConfigReader_GetString(t *testing.T) {
 	})
 
 	t.Run("empty value", func(t *testing.T) {
-		config, err := structpb.NewStruct(map[string]any{
+		config, err := structpb.NewStruct(map[string]interface{}{
 			"empty": "",
 		})
 		assert.NoError(t, err)
