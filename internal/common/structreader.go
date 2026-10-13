@@ -23,7 +23,6 @@ func NewStructReader(config *structpb.Struct) (*StructReader, error) {
 	if config == nil {
 		return nil, ErrNilConfig
 	}
-
 	return &StructReader{fields: config.Fields}, nil
 }
 

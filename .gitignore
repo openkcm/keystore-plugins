@@ -21,3 +21,5 @@
 # Cred files
 *.crt
 *.key
+
+junit.xml
