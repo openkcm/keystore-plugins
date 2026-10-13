@@ -1,5 +1,16 @@
 # Changelog
 
+## [0.1.7](https://github.com/openkcm/keystore-plugins/compare/v0.1.6...v0.1.7) (2026-10-13)
+
+
+### Bug Fixes
+
+* add support for more auth authentication methods using plugin configuration ([#107](https://github.com/openkcm/keystore-plugins/issues/107)) ([0e028de](https://github.com/openkcm/keystore-plugins/commit/0e028dea7f79c143646b67b4a1c1012fb5a24c45))
+* **deps:** bump actions/checkout from 6 to 7 ([#96](https://github.com/openkcm/keystore-plugins/issues/96)) ([66358ff](https://github.com/openkcm/keystore-plugins/commit/66358ff17a846c7791574c0b7123ff5984ca141e))
+* **deps:** bump github.com/aws/aws-sdk-go-v2/service/kms from 1.50.2 to 1.61.4 in the gomod-group group across 1 directory ([#108](https://github.com/openkcm/keystore-plugins/issues/108)) ([4fba5fc](https://github.com/openkcm/keystore-plugins/commit/4fba5fcd2b0e4aa8cf5d41268a70488c0954b42c))
+* **deps:** bump golang from 1.26-alpine to 1.27-alpine in the docker-group group ([#103](https://github.com/openkcm/keystore-plugins/issues/103)) ([7ea1dfa](https://github.com/openkcm/keystore-plugins/commit/7ea1dfa7eeeedef3432403b8d84a6fa7c723f981))
+* sync latest changes ([#106](https://github.com/openkcm/keystore-plugins/issues/106)) ([dba8811](https://github.com/openkcm/keystore-plugins/commit/dba8811cb46f926fd8eab0b6131775963d94442f))
+
 ## [0.1.6](https://github.com/openkcm/keystore-plugins/compare/v0.1.5...v0.1.6) (2026-08-18)
 
 
