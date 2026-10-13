@@ -1,11 +1,8 @@
-.PHONY: reuse-lint
-reuse-lint:
-	docker run --rm --volume $(PWD):/data fsfe/reuse lint
-
 .PHONY: clean
 clean:
 	rm -fR bin
 	rm -f cover.* *.out
+	rm -f junit.xml
 
 .PHONY: build
 build: clean
@@ -13,16 +10,44 @@ build: clean
 
 .PHONY: lint
 lint:
-	go install github.com/golangci/golangci-lint/v2/cmd/golangci-lint@v2.9.0
+	go install github.com/golangci/golangci-lint/cmd/golangci-lint@latest
 	golangci-lint run -v --fix
 
 .PHONY: test
-test:
-	go test -race -coverprofile cover.out ./...
+test: install-gotestsum
+	gotestsum --format testname --junitfile junit.xml -- -race -coverprofile cover.out ./...
+	go tool cover -func cover.out | awk '/^total:/ {printf "Coverage: %s\n", $$3}'
+
+.PHONY: install-gotestsum
+install-gotestsum:
+	(cd /tmp && go install gotest.tools/gotestsum@latest)
 
 .PHONY: coverage
 coverage: test
 	go tool cover -html=cover.out
+
+# List of folders to format
+FORMAT_FOLDERS := \
+    ./
+
+# Format Go files in specified folders
+.PHONY: format-go
+format-go:
+	for dir in $(FORMAT_FOLDERS); do \
+		find $$dir -name "*.go" -exec sh -c \
+			'gofmt -w "$$1" && \
+			goimports -w "$$1" && \
+			golines -w "$$1" && \
+			gci write --skip-generated \
+				-s standard \
+				-s default \
+				-s "prefix(github.tools.sap/kms/plugin-sdk)" \
+				-s blank \
+				-s dot \
+				-s alias \
+				-s localmodule \
+				"$$1"' sh {} \; ; \
+	done
 
 KEYSTORE_PLUGINS_NAME=keystore-plugins
 KEYSTORE_PLUGINS_DEV_TARGET=dev
@@ -46,4 +71,4 @@ tidy:
 .PHONY: proto
 proto:
 	protoc --go_out=. --go_opt=module=github.com/openkcm/keystore-plugins \
-		--go-grpc_out=./pkg/proto --go-grpc_opt=module=github.com/openkcm/keystore-plugins/pkg/proto proto/**/**/*.proto
+		--go-grpc_out=./pkg/proto --go-grpc_opt=module=github.com/openkcm/keystore-plugins/pkg/proto $$(find proto -name '*.proto')

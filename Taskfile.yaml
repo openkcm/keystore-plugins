@@ -5,7 +5,7 @@ includes:
     taskfile: hack/common/Taskfile_plugins.yaml
     flatten: true
     vars:
-      CODE_DIRS: '{{.ROOT_DIR}}/cmd/... {{.ROOT_DIR}}/internal/...'
+      CODE_DIRS: '{{.ROOT_DIR}}/cmd/... {{.ROOT_DIR}}/internal/... {{.ROOT_DIR}}/utils/...'
       COMPONENTS: 'keystoreop/aws'
       GENERATE_DOCS_INDEX: 'false'
       DOCKER_FILE_IDENTIFIER: 'plugins'

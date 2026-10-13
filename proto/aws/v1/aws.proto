@@ -5,7 +5,10 @@ package proto.aws.v1;
 option go_package = "github.com/openkcm/keystore-plugins/pkg/proto";
 
 message AWSKeyAccessData {
-  string key_arn = 10;
+  string key_identifier = 1; // Unified key identifier
+  string version_identifier = 2; // Key version ID
+  string certificate_subject = 3;
+  string key_arn = 10 [deprecated = true];
   string trust_anchor_arn = 20;
   string profile_arn = 30;
   string role_arn = 40;
