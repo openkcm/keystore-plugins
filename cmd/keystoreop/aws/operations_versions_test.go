@@ -12,31 +12,30 @@ import (
 	"google.golang.org/genproto/googleapis/rpc/errdetails"
 	"google.golang.org/grpc/status"
 
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
+
 	ap "github.com/openkcm/cmd/keystoreop/aws"
 	awsauth "github.com/openkcm/internal/aws/auth"
 	aws "github.com/openkcm/internal/aws/plugins/keystoreop"
 	"github.com/openkcm/internal/aws/plugins/keystoreop/mock"
-	kscommonv1 "github.com/openkcm/plugin-sdk/proto/plugin/keystore/common/v1"
 	operationsv1 "github.com/openkcm/plugin-sdk/proto/plugin/keystore/operations/v1"
 )
 
-type clientFactory = func(context.Context, *kscommonv1.KeystoreInstanceConfig, string) (*aws.Client, error)
-
-func newTestPlugin(factory clientFactory) *ap.AWSPlugin {
+func newTestPlugin(factory ap.ClientFactory) *ap.AWSPlugin {
 	p := ap.NewAWSPlugin(factory, buildInfo)
 	p.SetLogger(hclog.New(&hclog.LoggerOptions{Level: hclog.Error, Name: "test"}))
 
 	return p
 }
 
-func mockFactory(client *mock.Mock) clientFactory {
-	return func(context.Context, *kscommonv1.KeystoreInstanceConfig, string) (*aws.Client, error) {
+func mockFactory(client *mock.Mock) ap.ClientFactory {
+	return func(context.Context, string, awssdk.CredentialsProvider) (*aws.Client, error) {
 		return aws.NewClientForTests(client), nil
 	}
 }
 
-func failingFactory(err error) clientFactory {
-	return func(context.Context, *kscommonv1.KeystoreInstanceConfig, string) (*aws.Client, error) {
+func failingFactory(err error) ap.ClientFactory {
+	return func(context.Context, string, awssdk.CredentialsProvider) (*aws.Client, error) {
 		return nil, err
 	}
 }

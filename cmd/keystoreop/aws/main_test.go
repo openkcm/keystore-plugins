@@ -10,10 +10,11 @@ import (
 	"github.com/hashicorp/go-hclog"
 	"github.com/stretchr/testify/assert"
 
+	awssdk "github.com/aws/aws-sdk-go-v2/aws"
+
 	ap "github.com/openkcm/cmd/keystoreop/aws"
 	aws "github.com/openkcm/internal/aws/plugins/keystoreop"
 	"github.com/openkcm/internal/aws/plugins/keystoreop/mock"
-	kscommonv1 "github.com/openkcm/plugin-sdk/proto/plugin/keystore/common/v1"
 )
 
 var (
@@ -29,7 +30,7 @@ var (
 
 func setupTest() *ap.AWSPlugin {
 	p := ap.NewAWSPlugin(
-		func(ctx context.Context, cfg *kscommonv1.KeystoreInstanceConfig, region string) (*aws.Client, error) {
+		func(ctx context.Context, region string, _ awssdk.CredentialsProvider) (*aws.Client, error) {
 			return aws.NewClientForTests(happyPathMock), nil
 		},
 		buildInfo,

@@ -11,7 +11,6 @@ import (
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
-	awsauth "github.com/openkcm/internal/aws/auth"
 	aws "github.com/openkcm/internal/aws/plugins/keystoreop"
 	awsAccessData "github.com/openkcm/internal/aws/plugins/keystoreop/accessdata"
 	"github.com/openkcm/internal/common"
@@ -35,6 +34,7 @@ const (
 	GrpcErrorReasonDeniedByPolicy        = "DENIED_BY_POLICY"
 	GrpcErrorReasonListKeyVersionsDenied = "DENIED_GET_KEY_VERSIONS_BY_POLICY"
 	GrpcErrorReasonGenericAuthError      = "AUTHENTICATION_ERROR"
+	GrpcErrorReasonRoleNotAllowed        = "ROLE_NOT_ALLOWED"
 )
 
 // awsARNPattern is a pattern for AWSPlugin ARN FULL
@@ -71,7 +71,7 @@ func (ap *AWSPlugin) getClientFromRequestParams(
 		return nil, err
 	}
 
-	client, err := ap.clientFactory(ctx, params.Config, region)
+	client, err := ap.newClient(ctx, params.Config, region)
 	if err != nil {
 		return nil, err
 	}
@@ -84,9 +84,9 @@ func (ap *AWSPlugin) CreateKey(
 	ctx context.Context,
 	request *operationsv1.CreateKeyRequest,
 ) (*operationsv1.CreateKeyResponse, error) {
-	client, err := ap.clientFactory(ctx, request.Config, request.Region)
+	client, err := ap.newClient(ctx, request.Config, request.Region)
 	if err != nil {
-		return nil, ap.authenticationError(err)
+		return nil, err
 	}
 
 	keyAlgorithm := keystoreop.ConvertOperationsToBaseKeyAlgorithm(request.Algorithm)
@@ -176,7 +176,7 @@ func (ap *AWSPlugin) GetKeyVersions(
 ) (*operationsv1.GetKeyVersionsResponse, error) {
 	client, err := ap.getClientFromRequestParams(ctx, request.Parameters)
 	if err != nil {
-		return nil, ap.authenticationError(err)
+		return nil, err
 	}
 
 	result, err := client.GetKeyVerions(ctx, request.Parameters.KeyId)
@@ -215,7 +215,7 @@ func (ap *AWSPlugin) GetKey(
 ) (*operationsv1.GetKeyResponse, error) {
 	client, err := ap.getClientFromRequestParams(ctx, request.Parameters)
 	if err != nil {
-		return nil, ap.authenticationError(err)
+		return nil, err
 	}
 
 	result, err := client.GetKey(ctx, request.Parameters.KeyId)
@@ -437,20 +437,6 @@ func (ap *AWSPlugin) ExtractKeyRegion(
 	return &operationsv1.ExtractKeyRegionResponse{
 		Region: region,
 	}, nil
-}
-
-// authenticationError converts a Roles Anywhere session error into a gRPC
-// provider authentication error and returns any other error unchanged.
-func (ap *AWSPlugin) authenticationError(err error) error {
-	if !errors.Is(err, awsauth.ErrCreateRolesAnywhereSession) {
-		return err
-	}
-
-	return commonErrs.NewGrpcErrorWithDetails(
-		commonErrs.StatusProviderAuthenticationError,
-		ap.mapRolesAnywhereErrorReason(err),
-		nil,
-	)
 }
 
 func (ap *AWSPlugin) mapRolesAnywhereErrorReason(err error) string {
