@@ -27,7 +27,7 @@
 ### Bug Fixes
 
 * **deps:** bump github.com/aws/smithy-go from 1.23.0 to 1.23.1 ([#63](https://github.com/openkcm/keystore-plugins/issues/63)) ([5be4dcb](https://github.com/openkcm/keystore-plugins/commit/5be4dcb0961883249654c1a5a3d141be4cebffea))
-* **deps:** bump github.com/openkcm/plugin-sdk from 0.7.1 to 0.8.0 ([#62](https://github.com/openkcm/keystore-plugins/issues/62)) ([9e3895a](https://github.com/openkcm/keystore-plugins/commit/9e3895a79ca9544a45acd8a0b6b821957cdea6e8))
+* **deps:** bump github.com/openkcm/keystore-plugins/plugin-sdk from 0.7.1 to 0.8.0 ([#62](https://github.com/openkcm/keystore-plugins/issues/62)) ([9e3895a](https://github.com/openkcm/keystore-plugins/commit/9e3895a79ca9544a45acd8a0b6b821957cdea6e8))
 * publish workflow adjustments ([#64](https://github.com/openkcm/keystore-plugins/issues/64)) ([8c410d1](https://github.com/openkcm/keystore-plugins/commit/8c410d19c71ce955c4bc3f4fd70ed17cedb6ba21))
 
 ## [0.1.2](https://github.com/openkcm/keystore-plugins/compare/v0.1.1...v0.1.2) (2025-10-10)
@@ -58,7 +58,7 @@
 * **deps:** bump docker/login-action from 3.5.0 to 3.6.0 ([#46](https://github.com/openkcm/keystore-plugins/issues/46)) ([7254330](https://github.com/openkcm/keystore-plugins/commit/7254330525b6fde931cd038be1418a715b5a3d90))
 * **deps:** bump github.com/aws/aws-sdk-go-v2/config ([#44](https://github.com/openkcm/keystore-plugins/issues/44)) ([dbb78ed](https://github.com/openkcm/keystore-plugins/commit/dbb78ed34281f6b43e0f79859268c27ca3f586e6))
 * **deps:** bump github.com/aws/aws-sdk-go-v2/service/kms ([#40](https://github.com/openkcm/keystore-plugins/issues/40)) ([f15b5af](https://github.com/openkcm/keystore-plugins/commit/f15b5afc896399750258afa51173d79f23a00883))
-* **deps:** bump github.com/openkcm/plugin-sdk from 0.7.0 to 0.7.1 ([#48](https://github.com/openkcm/keystore-plugins/issues/48)) ([2f8821d](https://github.com/openkcm/keystore-plugins/commit/2f8821d8d6f7ae85e1162dd7808eb827d89b3fc6))
+* **deps:** bump github.com/openkcm/keystore-plugins/plugin-sdk from 0.7.0 to 0.7.1 ([#48](https://github.com/openkcm/keystore-plugins/issues/48)) ([2f8821d](https://github.com/openkcm/keystore-plugins/commit/2f8821d8d6f7ae85e1162dd7808eb827d89b3fc6))
 * **deps:** bump google.golang.org/protobuf from 1.36.8 to 1.36.10 ([#45](https://github.com/openkcm/keystore-plugins/issues/45)) ([f70386b](https://github.com/openkcm/keystore-plugins/commit/f70386b05fc5542e0d6b01da62372c22b412b4ce))
 * include the secrets inherit into the workflow ([#51](https://github.com/openkcm/keystore-plugins/issues/51)) ([c51d4d3](https://github.com/openkcm/keystore-plugins/commit/c51d4d37c9ed0a802a06913cfcd7fb5a11749e98))
 * make corrections on the release-please-config.json ([#53](https://github.com/openkcm/keystore-plugins/issues/53)) ([325fac0](https://github.com/openkcm/keystore-plugins/commit/325fac0bfae004d50da282d84345bb5250db2592))
