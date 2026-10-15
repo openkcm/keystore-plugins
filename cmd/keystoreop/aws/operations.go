@@ -11,6 +11,7 @@ import (
 	"google.golang.org/protobuf/types/known/structpb"
 	"google.golang.org/protobuf/types/known/timestamppb"
 
+	awsauth "github.com/openkcm/internal/aws/auth"
 	aws "github.com/openkcm/internal/aws/plugins/keystoreop"
 	awsAccessData "github.com/openkcm/internal/aws/plugins/keystoreop/accessdata"
 	"github.com/openkcm/internal/common"
@@ -383,6 +384,10 @@ func (ap *AWSPlugin) ValidateKeyAccessData(
 	_ context.Context,
 	accessData *operationsv1.ValidateKeyAccessDataRequest,
 ) (*operationsv1.ValidateKeyAccessDataResponse, error) {
+	if !ap.isPerRequest() {
+		return &operationsv1.ValidateKeyAccessDataResponse{IsValid: true}, nil
+	}
+
 	processor := keystoreop.NewAccessDataProcessor(awsAccessData.NewAWSAccessDataProcessor())
 	err := processor.ValidateKeyAccessData(
 		accessData.GetManagement(),
@@ -413,6 +418,10 @@ func (ap *AWSPlugin) TransformCryptoAccessData(
 		return nil, errors.New("crypto access data cannot be nil")
 	}
 
+	if !ap.isPerRequest() {
+		return &operationsv1.TransformCryptoAccessDataResponse{}, nil
+	}
+
 	processor := keystoreop.NewAccessDataProcessor(awsAccessData.NewAWSAccessDataProcessor())
 	transformedData, err := processor.TransformCryptoAccessData(keyID, jsonBytes)
 	if err != nil {
@@ -437,6 +446,13 @@ func (ap *AWSPlugin) ExtractKeyRegion(
 	return &operationsv1.ExtractKeyRegionResponse{
 		Region: region,
 	}, nil
+}
+
+func (ap *AWSPlugin) isPerRequest() bool {
+	ap.mu.RLock()
+	defer ap.mu.RUnlock()
+	m := ap.credentials.Method()
+	return m == "" || m == awsauth.MethodPerRequest
 }
 
 func (ap *AWSPlugin) mapRolesAnywhereErrorReason(err error) string {
