@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.1.8](https://github.com/openkcm/keystore-plugins/compare/v0.1.7...v0.1.8) (2026-10-20)
+
+
+### Bug Fixes
+
+* skip validate JSON data when auth method is not perRequest ([#110](https://github.com/openkcm/keystore-plugins/issues/110)) ([5d538c3](https://github.com/openkcm/keystore-plugins/commit/5d538c36b994a0d6a12be26dac853148ba239a60))
+
 ## [0.1.7](https://github.com/openkcm/keystore-plugins/compare/v0.1.6...v0.1.7) (2026-10-13)
 
 
