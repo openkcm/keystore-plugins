@@ -1,8 +1,8 @@
+[![REUSE status](https://api.reuse.software/badge/github.com/openkcm/keystore-plugins)](https://api.reuse.software/info/github.com/openkcm/keystore-plugins)
+
 # Keystore Plugins
 
 Default templates for SAP open source repositories, including LICENSE, .reuse/dep5, Code of Conduct, etc... All repositories on github.com/SAP will be created based on this template.
-
-[![REUSE status](https://api.reuse.software/badge/github.com/openkcm)](https://api.reuse.software/info/github.com/openkcm)
 
 ## About this project
 
